@@ -23,6 +23,7 @@ private:
 	int m_iMaxClause;
 	int m_iMaxVarTypes;
 	int m_iHighestC;
+	clock_t m_startTime;
 
 	SolSet getNewSolSet();
 	bool runDPLL(SolSet currSol, SATSET currClauses,int depth);

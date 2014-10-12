@@ -36,6 +36,7 @@ void dpll::Solve()
 	clock_t startTime;
 	double timeElapsed = 0;
 	startTime  = clock();
+	m_startTime = clock();
 	std::vector<int> temp;
 
 	for (int i = 0 ; i < m_iMaxVarTypes; i++){
@@ -98,6 +99,9 @@ bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
 	//fprintf(stderr, "%d depth\n", depth);
 	//printSolSet(&currSol);
 	//unit propagate
+	double timeElapsed = double(clock() - m_startTime)/CLOCKS_PER_SEC;
+
+	if (timeElapsed > MAX_TIME_LIMIT) return false;
 	int iCurrClauseCount = currClauses.size();
 
 	int bContradictionFound = false;
