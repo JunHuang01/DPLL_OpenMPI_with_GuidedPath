@@ -41,8 +41,8 @@ void dpll::Solve()
 
 	int iVarToPick = pickVar(&m_SATSET,&leftSol);
 
-	leftSol[iVarToPick-1] = ASSIGNTRUE;
-	rightSol[iVarToPick-1] = ASSIGNFALSE;
+	leftSol[iVarToPick] = ASSIGNTRUE;
+	rightSol[iVarToPick] = ASSIGNFALSE;
 	bool bSolved = runDPLL(leftSol,m_SATSET) || runDPLL(leftSol,m_SATSET);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
 	fprintf(stdout, "Solve=%d\tTimeSpent=%f\tHighestC=%d\n", 
@@ -144,6 +144,7 @@ bool dpll::runDPLL(SolSet currSol, SATSET currClauses)
 
 int dpll::pickVar(SATSET * currClauses, SolSet* currSol)
 {
+	printSolSet(currSol);
 	std::map<int,int> varMap;
 	int iLen = currClauses->size();
 
@@ -152,7 +153,7 @@ int dpll::pickVar(SATSET * currClauses, SolSet* currSol)
 		SolSet currClause = currClauses->at(i);
 		int jLen = currClause.size();
 		for ( int j = 0; j < jLen ; ++j){
-			int currVar = abs(currClause[j]);
+			int currVar = abs(currClause[j]) -1 ;
 			if( currSol->at(currVar) == UNASSIGNED)
 				varMap[currVar]++;
 		}
