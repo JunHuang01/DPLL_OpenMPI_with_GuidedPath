@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <iostream>
 
 
 #include "stdlib.h"
@@ -35,15 +36,28 @@ void dpll::Solve()
 	clock_t startTime;
 	double timeElapsed = 0;
 	startTime  = clock();
-	
-	SolSet leftSol = getNewSolSet();
-	SolSet rightSol = getNewSolSet();
+	SolSet temp;
 
-	int iVarToPick = pickVar(&m_SATSET,&leftSol);
+	for (int i = 0 ; i < m_iMaxVarTypes; i++){
+		temp.push_back(UNASSIGNED);
+	}
 
-	leftSol[iVarToPick] = ASSIGNTRUE;
-	rightSol[iVarToPick] = ASSIGNFALSE;
-	bool bSolved = runDPLL(leftSol,m_SATSET) || runDPLL(leftSol,m_SATSET);
+	SolSet leftSol = temp;
+	SolSet rightSol = temp;
+
+	int iVarToPick = pickVar(m_SATSET,temp);
+
+	leftSol[iVarToPick] = 1;
+	rightSol[iVarToPick] = 0;
+	for (int i = 0; i < leftSol.size() ; i++){
+		std::cout << leftSol[i];
+	}
+	std::cout << std::endl;
+	std::cout << leftSol[iVarToPick] << std::endl;
+	printSolSet(leftSol);
+	printSolSet(rightSol);
+
+	bool bSolved = runDPLL(leftSol,m_SATSET,0) || runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
 	fprintf(stdout, "Solve=%d\tTimeSpent=%f\tHighestC=%d\n", 
 		int(bSolved), timeElapsed, m_iHighestC);
@@ -61,13 +75,13 @@ SolSet dpll::getNewSolSet()
 	return newSolSet;
 }
 
-void dpll::printSolSet(SolSet * currSol)
+void dpll::printSolSet(SolSet currSol)
 {
-	int iLen = currSol->size();
+	int iLen = currSol.size();
 
 	for ( int i =0 ; i < iLen ; ++i)
 	{
-		fprintf(stderr, "%d ",  currSol->at(i));
+		fprintf(stderr, "%d ",  currSol.at(i));
 	}
 	fprintf(stderr, "\n");
 }
@@ -79,8 +93,11 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 }
 
 
-bool dpll::runDPLL(SolSet currSol, SATSET currClauses)
+bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
 {
+	if (depth == 2) return false;
+	fprintf(stderr, "%d depth\n", depth);
+	//printSolSet(&currSol);
 	//unit propagate
 	int iCurrClauseCount = currClauses.size();
 
@@ -128,37 +145,41 @@ bool dpll::runDPLL(SolSet currSol, SATSET currClauses)
 	if (iCurrClauseCount == 0) return true;
 
 	//choose a variable
-	int iVarToPick = pickVar(&m_SATSET,&currSol);
+	int iVarToPick = pickVar(currClauses,currSol);
 
 	SolSet leftSol = currSol;
 	SolSet rightSol = currSol;
 
-	leftSol[iVarToPick-1] = ASSIGNTRUE;
-	rightSol[iVarToPick-1] = ASSIGNFALSE;
+	leftSol[iVarToPick] = 1;
+	rightSol[iVarToPick] = 0;
 	//choose the variable with the most apperance as next variable to search
 
 
 	//Record highest Clause solved
-	return runDPLL(leftSol,currClauses) || runDPLL(leftSol,currClauses);
+	return runDPLL(leftSol,currClauses,depth+1) || runDPLL(rightSol,currClauses,depth+1);
 }
 
-int dpll::pickVar(SATSET * currClauses, SolSet* currSol)
+int dpll::pickVar(SATSET currClauses, SolSet currSol)
 {
-	printSolSet(currSol);
 	std::map<int,int> varMap;
-	int iLen = currClauses->size();
+	int iLen = currClauses.size();
+
+	printf("\n\n\n\n");
+	printSolSet(currSol);
+
+	fprintf(stderr, "%d is the currSize\n",iLen );
 
 	for ( int i = 0; i < iLen ; ++i)
 	{
-		SolSet currClause = currClauses->at(i);
+		SolSet currClause = currClauses.at(i);
 		int jLen = currClause.size();
 		for ( int j = 0; j < jLen ; ++j){
 			int currVar = abs(currClause[j]) -1 ;
-			if( currSol->at(currVar) == UNASSIGNED)
+			if( currSol.at(currVar) == UNASSIGNED)
 				varMap[currVar]++;
 		}
 	}
-	fprintf(stderr, "%d is the size of the map\n", varMap.size());
+	//fprintf(stderr, "%d is the size of the map\n", varMap.size());
 
 	int iVarToPick = -1;
 	int iCurrMaxCount = 0;
@@ -170,5 +191,5 @@ int dpll::pickVar(SATSET * currClauses, SolSet* currSol)
 		}
 	}
 	fprintf(stderr, "%d is the var to pick\n", iVarToPick);
-	return iVarToPick;
+	return iVarToPick -1;
 }

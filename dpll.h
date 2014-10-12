@@ -25,11 +25,11 @@ private:
 	int m_iHighestC;
 
 	SolSet getNewSolSet();
-	bool runDPLL(SolSet currSol, SATSET currClauses);
+	bool runDPLL(SolSet currSol, SATSET currClauses,int depth);
 	bool evalTruthValue(int iVar, int currAssign);
 
-	void printSolSet(SolSet *currSol);
-	int pickVar(SATSET * currClauses,SolSet* currSol);
+	void printSolSet(SolSet currSol);
+	int pickVar(SATSET currClauses,SolSet currSol);
 };
 
 
