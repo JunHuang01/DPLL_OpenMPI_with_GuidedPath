@@ -104,7 +104,6 @@ bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
 	if (timeElapsed > MAX_TIME_LIMIT) return false;
 	int iCurrClauseCount = currClauses.size();
 
-	int bContradictionFound = false;
 	for ( int i = 0; i < iCurrClauseCount; ++i)
 	{
 		SolSet currClause = currClauses[i];
@@ -135,14 +134,10 @@ bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
 		//check for contradiction
 		if(jLen == falseCount)
 		{
-			bContradictionFound = true;
+			m_iHighestC = std::max(m_iHighestC, m_iMaxClause- iCurrClauseCount);
+			return false;
 		}
 	}
-
-	m_iHighestC = std::max(m_iHighestC, m_iMaxClause- iCurrClauseCount);
-
-	//if contradiction is found return false
-	if (bContradictionFound) return false;
 
 	//if all clauses are consitent return true
 	if (iCurrClauseCount == 0) return true;

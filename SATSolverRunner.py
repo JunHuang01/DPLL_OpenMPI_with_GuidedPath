@@ -47,7 +47,10 @@ for file in files:
 	#if ".48." in file or ".44." in file:
 	#	continue
 	#print file
-	for i in range(10):
+	iRange = 10
+	if (algC == 1):
+		iRange = 1
+	for i in range(iRange):
 		try:
 			filePath = ""
 			if Mode is 0:
