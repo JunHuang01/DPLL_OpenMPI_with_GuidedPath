@@ -157,15 +157,17 @@ int dpll::pickVar(SATSET * currClauses, SolSet* currSol)
 				varMap[currVar]++;
 		}
 	}
+	fprintf(stderr, "%d is the size of the map\n", varMap.size());
 
 	int iVarToPick = -1;
 	int iCurrMaxCount = 0;
 	for(auto& varCount : varMap){
+		fprintf(stderr, "Var:%d Count:%d\n",varCount.first, varCount.second );
 		if (varCount.second > iCurrMaxCount){
 			iVarToPick = varCount.first;
 			iCurrMaxCount = varCount.second;
 		}
 	}
-
+	fprintf(stderr, "%d is the var to pick\n", iVarToPick);
 	return iVarToPick;
 }

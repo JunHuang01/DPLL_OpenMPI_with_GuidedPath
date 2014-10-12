@@ -29,6 +29,7 @@ protected:
 		m_iMaxVarType = 0;
 		m_sProblemFormat = "";
 		//m_SATSET.clear();
+		ReadAndParseData();
 	}
 
 private:
