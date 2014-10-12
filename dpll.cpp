@@ -36,26 +36,25 @@ void dpll::Solve()
 	clock_t startTime;
 	double timeElapsed = 0;
 	startTime  = clock();
-	SolSet temp;
+	std::vector<int> temp;
 
 	for (int i = 0 ; i < m_iMaxVarTypes; i++){
 		temp.push_back(UNASSIGNED);
 	}
 
-	SolSet leftSol = temp;
-	SolSet rightSol = temp;
+	SolSet leftSol(temp);
+	SolSet rightSol(temp);
+
+	//fprintf(stderr, "%d is size\n", leftSol.size() );
 
 	int iVarToPick = pickVar(m_SATSET,temp);
 
-	leftSol[iVarToPick] = 1;
-	rightSol[iVarToPick] = 0;
-	for (int i = 0; i < leftSol.size() ; i++){
-		std::cout << leftSol[i];
-	}
-	std::cout << std::endl;
-	std::cout << leftSol[iVarToPick] << std::endl;
-	printSolSet(leftSol);
-	printSolSet(rightSol);
+	leftSol.at(iVarToPick) = 1;
+	rightSol.at(iVarToPick) = 0;
+
+	//printSolSet(leftSol);
+	//printSolSet(rightSol);
+
 
 	bool bSolved = runDPLL(leftSol,m_SATSET,0) || runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
@@ -95,8 +94,8 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 
 bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
 {
-	if (depth == 2) return false;
-	fprintf(stderr, "%d depth\n", depth);
+	//if (depth == 0) return false;
+	//fprintf(stderr, "%d depth\n", depth);
 	//printSolSet(&currSol);
 	//unit propagate
 	int iCurrClauseCount = currClauses.size();
@@ -164,10 +163,10 @@ int dpll::pickVar(SATSET currClauses, SolSet currSol)
 	std::map<int,int> varMap;
 	int iLen = currClauses.size();
 
-	printf("\n\n\n\n");
-	printSolSet(currSol);
+	//printf("\n\n\n\n");
+	//printSolSet(currSol);
 
-	fprintf(stderr, "%d is the currSize\n",iLen );
+	//fprintf(stderr, "%d is the currSize\n",iLen );
 
 	for ( int i = 0; i < iLen ; ++i)
 	{
@@ -181,15 +180,15 @@ int dpll::pickVar(SATSET currClauses, SolSet currSol)
 	}
 	//fprintf(stderr, "%d is the size of the map\n", varMap.size());
 
-	int iVarToPick = -1;
+	int iVarToPick = 0;
 	int iCurrMaxCount = 0;
 	for(auto& varCount : varMap){
-		fprintf(stderr, "Var:%d Count:%d\n",varCount.first, varCount.second );
+		//fprintf(stderr, "Var:%d Count:%d\n",varCount.first, varCount.second );
 		if (varCount.second > iCurrMaxCount){
 			iVarToPick = varCount.first;
 			iCurrMaxCount = varCount.second;
 		}
 	}
-	fprintf(stderr, "%d is the var to pick\n", iVarToPick);
-	return iVarToPick -1;
+	//fprintf(stderr, "%d is the var to pick\n", iVarToPick);
+	return iVarToPick;
 }
