@@ -1,0 +1,9 @@
+bin/
+build/
+Results/
+cs463project3
+.release_time
+*.csv
+*Error.txt
+*.swp
+*.out
