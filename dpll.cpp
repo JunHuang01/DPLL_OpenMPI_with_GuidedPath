@@ -111,7 +111,7 @@ SolSet dpll::getNewSolSet()
 
 void dpll::LunchSlaves()
 {
-
+	fprintf(stderr, "The size of the master work pool is %d\n", m_MasterWorkPool.size());
 }
 
 void dpll::SlaveInitialRecv(){
