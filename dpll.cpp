@@ -57,6 +57,8 @@ dpll::~dpll(){
 
 }
 
+
+//in paralllel, this is initial generate GP routine, should only be used by master once
 void dpll::Solve()
 {
 	clock_t startTime;
@@ -72,6 +74,9 @@ void dpll::Solve()
 	SolSet leftSol(temp);
 	SolSet rightSol(temp);
 
+
+	m_SlaveWorkPool.push(GuidedPath(rightSol,currClauses,depth));
+	m_SlaveWorkPool.push(GuidedPath(leftSol,currClauses,depth));
 	//fprintf(stderr, "%d is size\n", leftSol.size() );
 
 	int iVarToPick = pickVar(m_SATSET,temp);
@@ -83,7 +88,7 @@ void dpll::Solve()
 	//printSolSet(rightSol);
 
 
-	bool bSolved = runDPLL(leftSol,rightSol,m_SATSET,0);//|| runDPLL(rightSol,m_SATSET,0);
+	bool bSolved = runDPLL();//|| runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
 	fprintf(stderr, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
@@ -142,13 +147,12 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 }
 
 
-bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
+bool dpll::runDPLL()
 {
 	SolSet currSol;
-
+	int currClauses;
+	int depth;
 	int iCurrClauseCount;
-	m_SlaveWorkPool.push(GuidedPath(rightSol,currClauses,depth));
-	m_SlaveWorkPool.push(GuidedPath(leftSol,currClauses,depth));
 	
 	while(!m_SlaveWorkPool.empty()){
 		//fprintf(stderr, "%d is the size of work pool\n", m_SlaveWorkPool.size() );

@@ -77,15 +77,25 @@ int main(int argc, char ** argv){
 		}
 		case eDPLL:{
 			//fprintf(stderr, "dpll in process\n" );
+
+			/*------- Begin Master proc --------*/
 			if(iProc == MASTERPROC){
 				dpll * pMaster = new dpll(GetParser.getInputData(),GetParser.getSATMaxClause(),
 					GetParser.getSATMaxVarType(),MAX_DEPTH_ALLOWED,iProc,nProc);
 
+				//Generate inital GP and lunch Slaves
 				pMaster->initMaster();
 
 				delete pMaster;
 				pMaster = NULL;
 			}
+			/*--------- End Master proc----------*/
+
+
+			/*---------Begin Slave proc----------*/
+
+
+			/*---------End Slave proc------------*/
 			break;
 		}
 		default:{

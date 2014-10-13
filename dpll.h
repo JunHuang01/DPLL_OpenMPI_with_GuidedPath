@@ -39,6 +39,8 @@ public:
 
 	void SlaveInitialRecv();
 
+	void Slave
+
 private:
 	SATSET m_SATSET;
 	int m_iMaxClause;
@@ -61,7 +63,7 @@ private:
 
 	SolSet getNewSolSet();
 	bool isAllVarAssigned(SolSet currSol);
-	bool runDPLL(SolSet leftSol, SolSet rightSol, SATSET currClauses,int depth);
+	bool runDPLL();
 	bool evalTruthValue(int iVar, int currAssign);
 
 	void printSolSet(SolSet currSol);
