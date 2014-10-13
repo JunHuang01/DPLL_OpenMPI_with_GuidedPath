@@ -27,6 +27,8 @@ class dpll{
 public:
 	dpll();
 	dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes, int MAX_DEPTH_ALLOWED);
+	dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes, 
+		int MAX_DEPTH_ALLOWED,int iProc,int nProc);
 	~dpll();
 
 
@@ -50,6 +52,8 @@ private:
 	WorkPool m_MasterWorkPool;
 	int m_iPreProcessLevel;
 	int iNextProcToAsk;
+	int m_iProc;
+	int m_nProc;
 
 	SolSet WorkerActivityList;
 

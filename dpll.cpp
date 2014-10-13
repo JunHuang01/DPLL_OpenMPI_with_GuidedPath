@@ -86,8 +86,8 @@ void dpll::Solve()
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
 }
 
-void dpll::initMaster(int nProc){
-	for ( int i = 0 ; i < nProc ; i++){
+void dpll::initMaster(){
+	for ( int i = 0 ; i < m_nProc ; i++){
 		WorkerActivityList.push_back(WORKER_INACTIVE);
 	}
 
@@ -112,7 +112,7 @@ void dpll::LunchSlaves()
 }
 
 void dpll::SlaveInitialRecv(){
-	
+
 }
 
 void dpll::MasterProduceInitialGP()
@@ -279,11 +279,11 @@ int dpll::pickVar(SATSET currClauses, SolSet currSol)
 
 	int iVarToPick = 0;
 	int iCurrMaxCount = 0;
-	for(auto& varCount : varMap){
+	for(std::map<int,int>::iterator varCountIter = varMap.begin() ; varCountIter != varMap.end() ; ++varCountIter){
 		//fprintf(stderr, "Var:%d Count:%d\n",varCount.first, varCount.second );
-		if (varCount.second > iCurrMaxCount){
-			iVarToPick = varCount.first;
-			iCurrMaxCount = varCount.second;
+		if (varCountIter->second > iCurrMaxCount){
+			iVarToPick = varCountIter->first;
+			iCurrMaxCount = varCountIter->second;
 		}
 	}
 	//fprintf(stderr, "%d is the var to pick\n", iVarToPick);
