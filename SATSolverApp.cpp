@@ -76,26 +76,44 @@ int main(int argc, char ** argv){
 			break;
 		}
 		case eDPLL:{
+			dpll * pMaster;
 			//fprintf(stderr, "dpll in process\n" );
 
 			/*------- Begin Master proc --------*/
 			if(iProc == MASTERPROC){
-				dpll * pMaster = new dpll(GetParser.getInputData(),GetParser.getSATMaxClause(),
-					GetParser.getSATMaxVarType(),MAX_DEPTH_ALLOWED,iProc,nProc);
+				bool bMasterProc = true;
+				pMaster = new dpll(GetParser.getInputData(),
+								GetParser.getSATMaxClause(),
+								GetParser.getSATMaxVarType(),
+					MAX_DEPTH_ALLOWED,iProc,nProc,bMasterProc);
 
 				//Generate inital GP and lunch Slaves
 				pMaster->initMaster();
-
-				delete pMaster;
-				pMaster = NULL;
 			}
 			/*--------- End Master proc----------*/
 
 
 			/*---------Begin Slave proc----------*/
+			//initial recv queue
+
+			//create slave solver
+
+
+			//run solver while answer is not found
+
+			//if answer found bcast end program
+
+			//if answer not found and queue is empty ask for more 
 
 
 			/*---------End Slave proc------------*/
+
+
+			/*----------Grabage collection when exit------*/
+			delete pMaster;
+			pMaster = NULL;
+
+			//Finished everything exit
 			break;
 		}
 		default:{

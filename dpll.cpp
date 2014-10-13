@@ -39,7 +39,7 @@ dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOW
 
 dpll::dpll(SATSET inputData,int iMaxClause,
  int iMaxVarTypes,int MAX_DEPTH_ALLOWED,
- int iProc, int nProc){
+ int iProc, int nProc, bool bMasterProc){
 	m_SATSET = inputData;
 	m_iMaxClause = iMaxClause;
 	m_iMaxVarTypes = iMaxVarTypes;
@@ -47,7 +47,7 @@ dpll::dpll(SATSET inputData,int iMaxClause,
 	m_iConflicts = 0;
 	m_iMAX_GPCount = 0;
 	m_iMAX_DEPTH_ALLOWED = MAX_DEPTH_ALLOWED;
-	m_iPreProcessLevel = NORMAL_PROCESSING;
+	m_bMasterProc = bMasterProc;
 	m_iProc = iProc;
 	m_nProc = nProc;
 }
@@ -58,50 +58,8 @@ dpll::~dpll(){
 }
 
 
-//in paralllel, this is initial generate GP routine, should only be used by master once
-void dpll::Solve()
-{
-	clock_t startTime;
-	double timeElapsed = 0;
-	startTime  = clock();
-	m_startTime = clock();
-	std::vector<int> temp;
-
-	for (int i = 0 ; i < m_iMaxVarTypes; i++){
-		temp.push_back(UNASSIGNED);
-	}
-
-	SolSet leftSol(temp);
-	SolSet rightSol(temp);
 
 
-	m_SlaveWorkPool.push(GuidedPath(rightSol,currClauses,depth));
-	m_SlaveWorkPool.push(GuidedPath(leftSol,currClauses,depth));
-	//fprintf(stderr, "%d is size\n", leftSol.size() );
-
-	int iVarToPick = pickVar(m_SATSET,temp);
-
-	leftSol.at(iVarToPick) = 1;
-	rightSol.at(iVarToPick) = 0;
-
-	//printSolSet(leftSol);
-	//printSolSet(rightSol);
-
-
-	bool bSolved = runDPLL();//|| runDPLL(rightSol,m_SATSET,0);
-	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
-	fprintf(stderr, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
-		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
-}
-
-void dpll::initMaster(){
-	for ( int i = 0 ; i < m_nProc ; i++){
-		WorkerActivityList.push_back(WORKER_INACTIVE);
-	}
-
-	MasterProduceInitialGP();
-	LunchSlaves();
-}
 //private
 
 SolSet dpll::getNewSolSet()
@@ -112,21 +70,6 @@ SolSet dpll::getNewSolSet()
 	}
 
 	return newSolSet;
-}
-
-void dpll::LunchSlaves()
-{
-	fprintf(stderr, "The size of the master work pool is %d\n", m_MasterWorkPool.size());
-}
-
-void dpll::SlaveInitialRecv(){
-
-}
-
-void dpll::MasterProduceInitialGP()
-{
-	m_iPreProcessLevel = MAX_PRE_PROCESS_LEVEL;
-	Solve();
 }
 
 void dpll::printSolSet(SolSet currSol)
@@ -147,6 +90,8 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 }
 
 
+//shared routinue by master / slave, since this is data parallism.  Inital run happens by
+//leveraging the iProcessLevel.
 bool dpll::runDPLL()
 {
 	SolSet currSol;
@@ -171,7 +116,7 @@ bool dpll::runDPLL()
 			continue;
 		}
 
-		if ( m_iPreProcessLevel == MAX_PRE_PROCESS_LEVEL && depth == MAX_PRE_PROCESS_LEVEL){
+		if ( m_bMasterProc && depth == MAX_PRE_PROCESS_LEVEL){
 			m_iMAX_GPCount++;
 			m_MasterWorkPool.push(GuidedPath(currSol,currClauses,depth));
 			continue;
@@ -252,7 +197,6 @@ bool dpll::runDPLL()
 		m_SlaveWorkPool.push( GuidedPath(leftSol,leftClauses,depth+1));
 	}
 
-
 	return false;
 }
 
@@ -297,4 +241,68 @@ int dpll::pickVar(SATSET currClauses, SolSet currSol)
 	}
 	//fprintf(stderr, "%d is the var to pick\n", iVarToPick);
 	return iVarToPick;
+}
+
+//Parallel public
+void dpll::initMaster(){
+	if (m_bMasterProc == false) return;
+	for ( int i = 0 ; i < m_nProc ; i++){
+		WorkerActivityList.push_back(WORKER_INACTIVE);
+	}
+
+	MasterProduceInitialGP();
+	LunchSlaves();
+}
+
+void dpll::SlaveInitialRecv(){
+	if (m_bMasterProc == true) return;
+
+}
+
+//in paralllel, this is initial generate GP routine, should only be used by master once
+void dpll::MasterProduceInitialGP()
+{
+	if (m_bMasterProc == false) return;
+
+	clock_t startTime;
+	double timeElapsed = 0;
+	startTime  = clock();
+	m_startTime = clock();
+	std::vector<int> temp;
+
+	for (int i = 0 ; i < m_iMaxVarTypes; i++){
+		temp.push_back(UNASSIGNED);
+	}
+
+	SolSet leftSol(temp);
+	SolSet rightSol(temp);
+
+
+	m_SlaveWorkPool.push(GuidedPath(rightSol,currClauses,depth));
+	m_SlaveWorkPool.push(GuidedPath(leftSol,currClauses,depth));
+	//fprintf(stderr, "%d is size\n", leftSol.size() );
+
+	int iVarToPick = pickVar(m_SATSET,temp);
+
+	leftSol.at(iVarToPick) = 1;
+	rightSol.at(iVarToPick) = 0;
+
+	//printSolSet(leftSol);
+	//printSolSet(rightSol);
+
+
+	bool bSolved = runDPLL();//|| runDPLL(rightSol,m_SATSET,0);
+	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
+	fprintf(stderr, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
+		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
+}
+
+//Parallel private
+void dpll::LunchSlaves()
+{
+	if (m_bMasterProc == false) return;
+	int iWorkPoolSize = m_MasterWorkPool.size();
+	fprintf(stderr, "The size of the master work pool is %d\n", iWorkPoolSize);
+
+
 }

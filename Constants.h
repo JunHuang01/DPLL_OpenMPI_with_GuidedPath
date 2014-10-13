@@ -20,7 +20,6 @@ SAT Solver Program
 
 
 #define MASTERPROC 0
-#define NORMAL_PROCESSING -1
 #define MAX_PRE_PROCESS_LEVEL 12
 
 

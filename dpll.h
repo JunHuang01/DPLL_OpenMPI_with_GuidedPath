@@ -28,7 +28,7 @@ public:
 	dpll();
 	dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes, int MAX_DEPTH_ALLOWED);
 	dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes, 
-		int MAX_DEPTH_ALLOWED,int iProc,int nProc);
+		int MAX_DEPTH_ALLOWED,int iProc,int nProc,bool bMasterProc);
 	~dpll();
 
 
@@ -54,7 +54,7 @@ private:
 
 	WorkPool m_SlaveWorkPool;
 	WorkPool m_MasterWorkPool;
-	int m_iPreProcessLevel;
+	bool m_bMasterProc;
 	int iNextProcToAsk;
 	int m_iProc;
 	int m_nProc;
