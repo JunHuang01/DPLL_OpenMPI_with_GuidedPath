@@ -13,11 +13,12 @@ typedef enum eAlgo{eGA=0,eDPLL} eAlgo;
 int main(int argc, char ** argv){
 	srand(time(NULL));
 	eAlgo eAlgoSelected = eDPLL;
+	int MAX_DEPTH_ALLOWED = 200; //Temporary number that will be a max that cause no trouble for all current cases
 	if (argc == 1)
 	{
 		fprintf(stderr,"No algo selected, defaulting to hillClimb\n");
 	}
-	else if (argc == 2)
+	if (argc >= 2)
 	{	
 		std::string algoSelection =  argv[1];
 		if (algoSelection == "Genetics")
@@ -33,7 +34,12 @@ int main(int argc, char ** argv){
 			return 0;
 		}
 	}
-	else
+	if (argc >= 3)
+	{
+		MAX_DEPTH_ALLOWED = atoi(argv[2]);
+
+	}
+	if (argc >= 4)
 	{
 		fprintf(stderr,"Wrong command format\n");
 		fprintf(stderr,"Usage: %s AglorithmMode{'hillClimb'|'dpll'|'Genetics' < 'inputFilePath'}\n",argv[0]);
@@ -49,7 +55,7 @@ int main(int argc, char ** argv){
 	case eDPLL:{
 		//fprintf(stderr, "dpll in process\n" );
 		dpll * pSolver = new dpll(GetParser.getInputData(),GetParser.getSATMaxClause(),
-			GetParser.getSATMaxVarType());
+			GetParser.getSATMaxVarType(),MAX_DEPTH_ALLOWED);
 
 		pSolver->Solve();
 

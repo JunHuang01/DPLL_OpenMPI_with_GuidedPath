@@ -4,11 +4,13 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <stack>
 
 
 #include "stdlib.h"
 #include "time.h"
 #include "limits.h"
+#include "math.h"
 
 #include "Constants.h"
 #include "CommonTypes.h"
@@ -16,13 +18,18 @@
 
 dpll::dpll(){
 	m_iHighestC = 0;
+	m_iConflicts = 0;
+	m_iMAX_GPCount = 0;
 }
 
-dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes){
+dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOWED){
 	m_SATSET = inputData;
 	m_iMaxClause = iMaxClause;
 	m_iMaxVarTypes = iMaxVarTypes;
 	m_iHighestC = 0;
+	m_iConflicts = 0;
+	m_iMAX_GPCount = 0;
+	m_iMAX_DEPTH_ALLOWED = MAX_DEPTH_ALLOWED;
 }
 
 
@@ -59,8 +66,8 @@ void dpll::Solve()
 
 	bool bSolved = runDPLL(leftSol,m_SATSET,0) || runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
-	fprintf(stdout, "Solve=%d\tTimeSpent=%f\tHighestC=%d\n", 
-		int(bSolved), timeElapsed, m_iHighestC);
+	fprintf(stdout, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
+		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
 }
 
 //private
@@ -95,20 +102,24 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 
 bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
 {
-	//if (depth == 0) return false;
-	//fprintf(stderr, "%d depth\n", depth);
+
+	if (depth == m_iMAX_DEPTH_ALLOWED){
+		m_iMAX_GPCount++;
+		return false;
+	}
+	//fprintf(stderr, "%d depth %d is MAX_DEPTH\n", depth,m_iMAX_DEPTH_ALLOWED);
 	//printSolSet(&currSol);
 	//unit propagate
-	double timeElapsed = double(clock() - m_startTime)/CLOCKS_PER_SEC;
+	//double timeElapsed = double(clock() - m_startTime)/CLOCKS_PER_SEC;
 
-	if (timeElapsed > MAX_TIME_LIMIT) return false;
+	//if (timeElapsed > MAX_TIME_LIMIT) return false;
 	int iCurrClauseCount = currClauses.size();
 
 	for ( int i = 0; i < iCurrClauseCount; ++i)
 	{
 		SolSet currClause = currClauses[i];
 		int jLen = currClause.size();
-		int falseCount = 0;
+		
 		for ( int j = 0 ; j < jLen ; ++j){
 			int currVar = currClause[j];
 			int currAssign = currSol[abs(currVar)-1];
@@ -126,21 +137,28 @@ bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
 				break;
 			}
 			else
-			{
-				falseCount++;
+			{	
+				currClause.erase(currClause.begin()+j);
+				jLen--;
+				j--;
 			}
 		}
 
 		//check for contradiction
-		if(jLen == falseCount)
+		if(jLen == 0)
 		{
 			m_iHighestC = std::max(m_iHighestC, m_iMaxClause- iCurrClauseCount);
+			m_iConflicts++;
 			return false;
 		}
 	}
 
 	//if all clauses are consitent return true
-	if (iCurrClauseCount == 0) return true;
+	if (iCurrClauseCount == 0) 
+	{
+		m_iHighestC = std::max(m_iHighestC, m_iMaxClause- iCurrClauseCount);
+		return true;
+	}
 
 	//choose a variable
 	int iVarToPick = pickVar(currClauses,currSol);
@@ -174,7 +192,7 @@ int dpll::pickVar(SATSET currClauses, SolSet currSol)
 		for ( int j = 0; j < jLen ; ++j){
 			int currVar = abs(currClause[j]) -1 ;
 			if( currSol.at(currVar) == UNASSIGNED)
-				varMap[currVar]++;
+				varMap[currVar]++; //+= pow(2.0,float(jLen)) + 1;
 		}
 	}
 	//fprintf(stderr, "%d is the size of the map\n", varMap.size());

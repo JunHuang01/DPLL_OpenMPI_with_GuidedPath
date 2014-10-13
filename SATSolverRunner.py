@@ -5,13 +5,11 @@ import subprocess as sb
 import os
 import fnmatch
 import select
-#hillClimb = 0
-#dpll = 1
-#Genetics = 2
-algC = 1 #choice of algorithm
-#Test = 0
-#Production = 1
-Mode = 0
+
+import config as cfg
+
+Mode = cfg.Mode
+algC = cfg.algC
 
 testPath = "/tests/"
 productionPath = "/3cnf_100atoms/"

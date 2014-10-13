@@ -8,11 +8,21 @@
 #include "Constants.h"
 #include "CommonTypes.h"
 
+struct GuidedPath{
+	SolSet currSol;
+	SATSET currClauses;
+	int depth;
+	GuidedPath(SolSet currSol, SATSET currClauses, int depth){
+		this->currSol = currSol;
+		this->currClauses = currClauses;
+		this->depth = depth;
+	}
+};
 
 class dpll{
 public:
 	dpll();
-	dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes);
+	dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes, int MAX_DEPTH_ALLOWED);
 	~dpll();
 
 
@@ -23,6 +33,9 @@ private:
 	int m_iMaxClause;
 	int m_iMaxVarTypes;
 	int m_iHighestC;
+	int m_iMAX_DEPTH_ALLOWED;
+	int m_iConflicts;
+	int m_iMAX_GPCount;
 	clock_t m_startTime;
 
 	SolSet getNewSolSet();
