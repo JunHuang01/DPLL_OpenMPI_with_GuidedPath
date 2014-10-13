@@ -10,8 +10,8 @@
 #include "CommonTypes.h"
 
 struct GuidedPath{
-	SolSet currSol;
 	SATSET currClauses;
+	SolSet currSol;
 	int depth;
 	GuidedPath(SolSet currSol, SATSET currClauses, int depth){
 		this->currSol = currSol;
@@ -21,7 +21,7 @@ struct GuidedPath{
 
 };
 
-typedef std::stack<GuidedPath*> WorkPool;
+typedef std::stack<GuidedPath> WorkPool;
 
 class dpll{
 public:

@@ -106,20 +106,20 @@ bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
 	WorkPool currWorkPool;
 
 	int iCurrClauseCount;
-	currWorkPool.push(new GuidedPath(rightSol,currClauses,depth));
-	currWorkPool.push(new GuidedPath(leftSol,currClauses,depth));
+	currWorkPool.push(GuidedPath(rightSol,currClauses,depth));
+	currWorkPool.push(GuidedPath(leftSol,currClauses,depth));
 	
 	while(!currWorkPool.empty()){
 		//fprintf(stderr, "%d is the size of work pool\n", currWorkPool.size() );
 		bool bFoundConflict = false;
-		GuidedPath* pCurrGuidedPath = currWorkPool.top();
+		GuidedPath pCurrGuidedPath = currWorkPool.top();
 		currWorkPool.pop();
-		currSol = pCurrGuidedPath->currSol;
-		currClauses =pCurrGuidedPath->currClauses;
-		depth = pCurrGuidedPath->depth;
+		currSol = pCurrGuidedPath.currSol;
+		currClauses =pCurrGuidedPath.currClauses;
+		depth = pCurrGuidedPath.depth;
 		//printSolSet(currSol);
-		delete pCurrGuidedPath;
-		pCurrGuidedPath = NULL;
+		//delete pCurrGuidedPath;
+		//pCurrGuidedPath = NULL;
 		if (m_iMAX_DEPTH_ALLOWED > 0 &&depth == 11 /*m_iMAX_DEPTH_ALLOWED*/){
 			m_iMAX_GPCount++;
 			//fprintf(stderr, "The currDepth is %d and MAX_DEPTH is %d\n",depth,m_iMAX_DEPTH_ALLOWED );
@@ -197,8 +197,8 @@ bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
 
 		//Record highest Clause solved
 		//return runDPLL(leftSol,currClauses,depth+1) || runDPLL(rightSol,currClauses,depth+1);
-		currWorkPool.push(new GuidedPath(rightSol,rightClauses,depth+1));
-		currWorkPool.push(new GuidedPath(leftSol,leftClauses,depth+1));
+		currWorkPool.push( GuidedPath(rightSol,rightClauses,depth+1));
+		currWorkPool.push( GuidedPath(leftSol,leftClauses,depth+1));
 	}
 
 	return false;
