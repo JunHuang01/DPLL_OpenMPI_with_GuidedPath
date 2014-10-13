@@ -1,7 +1,7 @@
 #ifndef DPLL_H
 #define DPLL_H
 
-
+#include <mpi.h>
 #include <vector>
 #include <string>
 #include <stack>

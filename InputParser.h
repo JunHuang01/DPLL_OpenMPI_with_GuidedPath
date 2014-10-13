@@ -7,7 +7,7 @@ SAT Solver Program
 #ifndef INPUTPARSER_H
 #define INPUTPARSER_H
 
-
+#include <mpi.h>
 #include <memory>
 #include <vector>
 #include <string>

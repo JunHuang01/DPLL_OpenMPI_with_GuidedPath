@@ -1,3 +1,5 @@
+#include <mpi.h>
+
 #include "InputParser.h"
 #include <iostream>
 #include <string>

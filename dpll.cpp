@@ -1,3 +1,5 @@
+#include <mpi.h>
+
 #include "dpll.h"
 
 #include <vector>

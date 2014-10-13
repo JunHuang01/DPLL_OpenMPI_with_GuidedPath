@@ -32,8 +32,8 @@ int main(int argc, char ** argv){
 		printf("SIZE = %d RANK = %d HostName = %s\n", nProc,iProc,hostname);
 		MPI_Finalize();
 		return(0);
-	}
-	printf("SIZE = %d RANK = %d HostName = %s\n", nProc,iProc,hostname);
+	}else
+		printf("SIZE = %d RANK = %d HostName = %s\n", nProc,iProc,hostname);
 	if (iProc == MASTERPROC){
 		eAlgo eAlgoSelected = eDPLL;
 		int MAX_DEPTH_ALLOWED = -1; //Temporary number that will be a max that cause no trouble for all current cases
