@@ -256,11 +256,21 @@ void dpll::initMaster(){
 
 void dpll::SlaveInitialRecv(){
 	if (m_bMasterProc == true) return;
+	MPI_Status status;
+	int iTotalByteSizeOfGP = 0;
+	
+	WorkPool* tempRecvWorkPool;
+	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
+		MPI_COMM_WORLD,&status);
 
-	for ( int iProc = 0; iProc < m_nProc ; iProc++){
-
+	if (iTotalByteSizeOfGP > 0 ){
+		tempRecvWorkPool = (WorkPool*)malloc(iTotalByteSizeOfGP);
 	}
 
+	MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
+		MPI_COMM_WORLD,&status);
+	
+	fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,tempRecvWorkPool->size() );
 }
 
 //in paralllel, this is initial generate GP routine, should only be used by master once
@@ -339,15 +349,20 @@ void dpll::LunchSlaves()
 
 	int iNumGPToSend = ceil((iWorkPoolSize/2)/double(m_nProc));
 
-	for ( int iProc = 0; iProc < m_nProc  ; iProc++)
+	for ( int destPE = 0; destPE < m_nProc  ; destPE++)
 	{
 		WorkPool GPToSend;
 		packGPToSend(GPToSend,iNumGPToSend );
 
-		fprintf(stderr, "Packed %d GP sent to %d proc \n",GPToSend.size(), iProc );
+		fprintf(stderr, "Packed %d GP sent to %d proc \n",GPToSend.size(), destPE);
 		int sourcePE = MASTERPROC;
 		int Tag = InitialSendRecvTag;
 		MPI_Request request;
+
+		int totalGPByteSize = int(sizeof(GPToSend));
+		MPI_Isend(&totalGPByteSize,1,MPI_INT,destPE,InitialSendRecvTag,MPI_COMM_WORLD,&request);
+		MPI_Isend((void*)&GPToSend,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
+			MPI_COMM_WORLD,&request);
 	}
 
 }
