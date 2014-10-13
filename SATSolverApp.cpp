@@ -110,8 +110,10 @@ int main(int argc, char ** argv){
 
 
 			/*----------Grabage collection when exit------*/
-			delete pMaster;
-			pMaster = NULL;
+			if(iProc == MASTERPROC){
+				delete pMaster;
+				pMaster = NULL;
+			}
 
 			//Finished everything exit
 			break;

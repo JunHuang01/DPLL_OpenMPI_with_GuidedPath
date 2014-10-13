@@ -290,8 +290,8 @@ void dpll::MasterProduceInitialGP()
 	//printSolSet(rightSol);
 	m_SlaveWorkPool.push(GuidedPath(rightSol,m_SATSET,depth));
 	m_SlaveWorkPool.push(GuidedPath(leftSol,m_SATSET,depth));
-	bool bSolved = 0;
-	//bool bSolved = runDPLL();//|| runDPLL(rightSol,m_SATSET,0);
+
+	bool bSolved = runDPLL();//|| runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
 	fprintf(stderr, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
