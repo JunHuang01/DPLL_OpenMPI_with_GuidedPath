@@ -85,7 +85,7 @@ void dpll::Solve()
 
 	bool bSolved = runDPLL(leftSol,rightSol,m_SATSET,0);//|| runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
-	fprintf(stdout, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
+	fprintf(stderr, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
 }
 
@@ -169,6 +169,7 @@ bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
 		}
 
 		if ( m_iPreProcessLevel == MAX_PRE_PROCESS_LEVEL && depth == MAX_PRE_PROCESS_LEVEL){
+			m_iMAX_GPCount++;
 			continue;
 		}
 		//fprintf(stderr, "%d depth %d is MAX_DEPTH\n", depth,m_iMAX_DEPTH_ALLOWED);
