@@ -23,7 +23,7 @@ dpll::dpll(){
 	m_iHighestC = 0;
 	m_iConflicts = 0;
 	m_iMAX_GPCount = 0;
-	m_iPreProcessLevel = NORMAL_PROCESSING;
+	m_bMasterProc = false;
 }
 
 dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOWED){
@@ -34,7 +34,7 @@ dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOW
 	m_iConflicts = 0;
 	m_iMAX_GPCount = 0;
 	m_iMAX_DEPTH_ALLOWED = MAX_DEPTH_ALLOWED;
-	m_iPreProcessLevel = NORMAL_PROCESSING;
+	m_bMasterProc = false;
 }
 
 dpll::dpll(SATSET inputData,int iMaxClause,
@@ -95,7 +95,7 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 bool dpll::runDPLL()
 {
 	SolSet currSol;
-	int currClauses;
+	SATSET currClauses;
 	int depth;
 	int iCurrClauseCount;
 	
