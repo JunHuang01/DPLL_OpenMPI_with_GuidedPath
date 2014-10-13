@@ -8,6 +8,7 @@
 
 
 #include "stdlib.h"
+#include <stdio.h>
 #include "time.h"
 #include "limits.h"
 #include "math.h"
