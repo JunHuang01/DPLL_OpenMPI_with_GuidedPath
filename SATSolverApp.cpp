@@ -5,6 +5,7 @@
 #include <memory>
 #include "time.h"
 #include <string>
+#include <cstdlib>
 
 #include "InputParser.h"
 #include "Constants.h"
