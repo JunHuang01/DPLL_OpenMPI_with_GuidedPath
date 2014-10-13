@@ -41,10 +41,12 @@ private:
 	int m_iConflicts;
 	int m_iMAX_GPCount;
 	clock_t m_startTime;
+	WorkPool m_SlaveWorkPool;
+	WorkPool m_MasterWorkPool;
 
 	SolSet getNewSolSet();
 	bool isAllVarAssigned(SolSet currSol);
-	bool runDPLL(SolSet leftSol, SolSet rightSol, SATSET currClauses,int depth);
+	bool runDPLL(SolSet leftSol, SolSet rightSol, SATSET currClauses,int depth,int bPreProcess=0);
 	bool evalTruthValue(int iVar, int currAssign);
 
 	void printSolSet(SolSet currSol);

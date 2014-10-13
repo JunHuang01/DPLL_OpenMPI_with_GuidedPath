@@ -8,10 +8,12 @@
 #include "Constants.h"
 #include "dpll.h"
 
+#include "mpi.h"
+
 
 typedef enum eAlgo{eGA=0,eDPLL} eAlgo;
 int main(int argc, char ** argv){
-	srand(time(NULL));
+	
 	eAlgo eAlgoSelected = eDPLL;
 	int MAX_DEPTH_ALLOWED = -1; //Temporary number that will be a max that cause no trouble for all current cases
 	if (argc == 1)
