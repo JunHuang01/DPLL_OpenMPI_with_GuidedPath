@@ -278,10 +278,9 @@ void dpll::MasterProduceInitialGP()
 	SolSet rightSol(temp);
 
 
-	m_SlaveWorkPool.push(GuidedPath(rightSol,currClauses,depth));
-	m_SlaveWorkPool.push(GuidedPath(leftSol,currClauses,depth));
-	//fprintf(stderr, "%d is size\n", leftSol.size() );
 
+	//fprintf(stderr, "%d is size\n", leftSol.size() );
+	int depth = 0;
 	int iVarToPick = pickVar(m_SATSET,temp);
 
 	leftSol.at(iVarToPick) = 1;
@@ -289,7 +288,8 @@ void dpll::MasterProduceInitialGP()
 
 	//printSolSet(leftSol);
 	//printSolSet(rightSol);
-
+	m_SlaveWorkPool.push(GuidedPath(rightSol,m_SATSET,depth));
+	m_SlaveWorkPool.push(GuidedPath(leftSol,m_SATSET,depth));
 
 	bool bSolved = runDPLL();//|| runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
