@@ -34,42 +34,42 @@ int main(int argc, char ** argv){
 		return(0);
 	}else
 		printf("SIZE = %d RANK = %d HostName = %s\n", nProc,iProc,hostname);
-	if (iProc == MASTERPROC){
-		eAlgo eAlgoSelected = eDPLL;
-		int MAX_DEPTH_ALLOWED = -1; //Temporary number that will be a max that cause no trouble for all current cases
-		if (argc == 1)
+	
+	eAlgo eAlgoSelected = eDPLL;
+	int MAX_DEPTH_ALLOWED = -1; //Temporary number that will be a max that cause no trouble for all current cases
+	if (argc == 1)
+	{
+		fprintf(stderr,"No algo selected, defaulting to hillClimb\n");
+	}
+	if (argc >= 2)
+	{	
+		std::string algoSelection =  argv[1];
+		if (algoSelection == "Genetics")
 		{
-			fprintf(stderr,"No algo selected, defaulting to hillClimb\n");
+			eAlgoSelected = eGA;
 		}
-		if (argc >= 2)
-		{	
-			std::string algoSelection =  argv[1];
-			if (algoSelection == "Genetics")
-			{
-				eAlgoSelected = eGA;
-			}
-			else if (algoSelection == "dpll")
-			{
-				eAlgoSelected = eDPLL;
-			}
-			else{
-				fprintf(stderr, "Invalid Algorithm selection, please choose from 'hillClimb'|'dpll'|'Genetics' \n" );
-				return 0;
-			}
-		}
-		if (argc >= 3)
+		else if (algoSelection == "dpll")
 		{
-			MAX_DEPTH_ALLOWED = atoi(argv[2]);
-
+			eAlgoSelected = eDPLL;
 		}
-		if (argc >= 4)
-		{
-			fprintf(stderr,"Wrong command format\n");
-			fprintf(stderr,"Usage: %s AglorithmMode{'hillClimb'|'dpll'|'Genetics' < 'inputFilePath'}\n",argv[0]);
+		else{
+			fprintf(stderr, "Invalid Algorithm selection, please choose from 'hillClimb'|'dpll'|'Genetics' \n" );
 			return 0;
 		}
+	}
+	if (argc >= 3)
+	{
+		MAX_DEPTH_ALLOWED = atoi(argv[2]);
 
-		switch(eAlgoSelected){
+	}
+	if (argc >= 4)
+	{
+		fprintf(stderr,"Wrong command format\n");
+		fprintf(stderr,"Usage: %s AglorithmMode{'hillClimb'|'dpll'|'Genetics' < 'inputFilePath'}\n",argv[0]);
+		return 0;
+	}
+
+	switch(eAlgoSelected){
 		case eGA:{
 			//fprintf(stderr, "GA in process\n" );
 
@@ -77,18 +77,19 @@ int main(int argc, char ** argv){
 		}
 		case eDPLL:{
 			//fprintf(stderr, "dpll in process\n" );
-			dpll * pSolver = new dpll(GetParser.getInputData(),GetParser.getSATMaxClause(),
-				GetParser.getSATMaxVarType(),MAX_DEPTH_ALLOWED,iProc,nProc);
+			if(iProc == MASTERPROC){
+				dpll * pMaster = new dpll(GetParser.getInputData(),GetParser.getSATMaxClause(),
+					GetParser.getSATMaxVarType(),MAX_DEPTH_ALLOWED,iProc,nProc);
 
-			pSolver->initMaster();
+				pMaster->initMaster();
 
-			delete pSolver;
-			pSolver = NULL;
+				delete pMaster;
+				pMaster = NULL;
+			}
 			break;
 		}
 		default:{
 			break;
-		}
 		}
 	}
 	MPI_Finalize();
