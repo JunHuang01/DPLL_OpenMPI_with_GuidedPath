@@ -25,4 +25,8 @@ SAT Solver Program
 
 #define WORKER_INACTIVE 0
 #define WORKER_ACTIVE 1
+
+#define InitialSendRecvTag 0
+#define MasterAskSlaveTag 1
+#define SlaveAskMasterTag 2
 #endif

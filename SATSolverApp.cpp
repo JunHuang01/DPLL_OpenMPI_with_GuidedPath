@@ -77,6 +77,8 @@ int main(int argc, char ** argv){
 		}
 		case eDPLL:{
 			dpll * pMaster;
+			dpll * pSlave;
+			bool bSolved = false;
 			//fprintf(stderr, "dpll in process\n" );
 
 			/*------- Begin Master proc --------*/
@@ -94,9 +96,20 @@ int main(int argc, char ** argv){
 
 
 			/*---------Begin Slave proc----------*/
-			//initial recv queue
 
 			//create slave solver
+			bool bMasterProc = false;
+				pSlave = new dpll(GetParser.getInputData(),
+								GetParser.getSATMaxClause(),
+								GetParser.getSATMaxVarType(),
+					MAX_DEPTH_ALLOWED,iProc,nProc,bMasterProc);
+
+			//initial recv queue
+
+			pSlave->SlaveInitialRecv();
+			
+			while(bSolved){
+
 
 
 			//run solver while answer is not found
@@ -105,7 +118,7 @@ int main(int argc, char ** argv){
 
 			//if answer not found and queue is empty ask for more 
 
-
+			}
 			/*---------End Slave proc------------*/
 
 
@@ -114,6 +127,8 @@ int main(int argc, char ** argv){
 				delete pMaster;
 				pMaster = NULL;
 			}
+
+
 
 			//Finished everything exit
 			break;

@@ -44,6 +44,8 @@ public:
 	void MasterAskForMoreWork();
 
 	bool IsThereActiveSlave();
+
+	void packGPToSend(WorkPool &currGPToSend, int iGPToSend = 10);
 private:
 	SATSET m_SATSET;
 	int m_iMaxClause;

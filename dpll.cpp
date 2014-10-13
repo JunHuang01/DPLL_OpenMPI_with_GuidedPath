@@ -257,6 +257,10 @@ void dpll::initMaster(){
 void dpll::SlaveInitialRecv(){
 	if (m_bMasterProc == true) return;
 
+	for ( int iProc = 0; iProc < m_nProc ; iProc++){
+
+	}
+
 }
 
 //in paralllel, this is initial generate GP routine, should only be used by master once
@@ -279,7 +283,7 @@ void dpll::MasterProduceInitialGP()
 
 
 
-	fprintf(stderr, "%d is size\n", leftSol.size() );
+	//fprintf(stderr, "%d is size\n", leftSol.size() );
 	int depth = 0;
 	int iVarToPick = pickVar(m_SATSET,temp);
 
@@ -319,11 +323,31 @@ bool dpll::IsThereActiveSlave(){
 }
 
 //Parallel private
+void dpll::packGPToSend(WorkPool &currGPToSend, int iGPToSend){
+	int iWorkPoolSize = m_MasterWorkPool.size();
+	if (iWorkerSizeSize < 40 )  iGPToSend = 1;
+	for(int i = 0; i < iGPToSend && !m_MasterWorkPool.empty(); i++){
+		currGPToSend->push(m_MasterWorkPool.top());
+		m_MasterWorkPool.pop();
+	}
+}
 void dpll::LunchSlaves()
 {
 	if (m_bMasterProc == false) return;
 	int iWorkPoolSize = m_MasterWorkPool.size();
 	fprintf(stderr, "The size of the master work pool is %d\n", iWorkPoolSize);
 
+	int iNumGPToSend = ceil((iWorkerSize/2)/double(m_nProc));
+
+	for ( int iProc = 0; iProc < m_nProc  ; iProc++)
+	{
+		WorkPool GPToSend;
+		packGPToSend(GPToSend,iNumGPToSend );
+
+		fprintf(stderr, "Packed %d GP sent to %d proc \n",GPToSend.size(), iProc );
+		int sourcePE = MASTERPROC;
+		int Tag = InitialSendRecvTag;
+		MPI_Request request;
+	}
 
 }
