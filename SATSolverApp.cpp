@@ -30,7 +30,7 @@ int main(int argc, char ** argv){
 
 	if(iProc == 3){
 		printf("SIZE = %d RANK = %d HostName = %s\n", nProc,iProc,hostname);
-		MPI_Finalize()
+		MPI_Finalize();
 		return(0);
 	}
 	printf("SIZE = %d RANK = %d HostName = %s\n", nProc,iProc,hostname);
