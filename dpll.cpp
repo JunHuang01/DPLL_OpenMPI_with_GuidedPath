@@ -20,6 +20,7 @@ dpll::dpll(){
 	m_iHighestC = 0;
 	m_iConflicts = 0;
 	m_iMAX_GPCount = 0;
+	m_iPreProcessLevel = NORMAL_PROCESSING;
 }
 
 dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOWED){
@@ -30,8 +31,23 @@ dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOW
 	m_iConflicts = 0;
 	m_iMAX_GPCount = 0;
 	m_iMAX_DEPTH_ALLOWED = MAX_DEPTH_ALLOWED;
+	m_iPreProcessLevel = NORMAL_PROCESSING;
 }
 
+dpll::dpll(SATSET inputData,int iMaxClause,
+ int iMaxVarTypes,int MAX_DEPTH_ALLOWED,
+ int iProc, int nProc){
+	m_SATSET = inputData;
+	m_iMaxClause = iMaxClause;
+	m_iMaxVarTypes = iMaxVarTypes;
+	m_iHighestC = 0;
+	m_iConflicts = 0;
+	m_iMAX_GPCount = 0;
+	m_iMAX_DEPTH_ALLOWED = MAX_DEPTH_ALLOWED;
+	m_iPreProcessLevel = NORMAL_PROCESSING;
+	m_iProc = iProc;
+	m_nProc = nProc;
+}
 
 
 dpll::~dpll(){
@@ -70,6 +86,14 @@ void dpll::Solve()
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
 }
 
+void dpll::initMaster(int nProc){
+	for ( int i = 0 ; i < nProc ; i++){
+		WorkerActivityList.push_back(WORKER_INACTIVE);
+	}
+
+	MasterProduceInitialGP();
+	LunchSlaves();
+}
 //private
 
 SolSet dpll::getNewSolSet()
@@ -80,6 +104,22 @@ SolSet dpll::getNewSolSet()
 	}
 
 	return newSolSet;
+}
+
+void dpll::LunchSlaves()
+{
+
+}
+
+void dpll::SlaveInitialRecv(){
+	
+}
+
+void dpll::MasterProduceInitialGP()
+{
+	m_iPreProcessLevel = MAX_PRE_PROCESS_LEVEL;
+	Solve();
+	m_MasterWorkPool = m_SlaveWorkPool;
 }
 
 void dpll::printSolSet(SolSet currSol)
@@ -100,7 +140,7 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 }
 
 
-bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth,int iPreProcessLevel)
+bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
 {
 	SolSet currSol;
 
@@ -122,6 +162,10 @@ bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth,
 		if (m_iMAX_DEPTH_ALLOWED > 0 &&depth == m_iMAX_DEPTH_ALLOWED){
 			m_iMAX_GPCount++;
 			//fprintf(stderr, "The currDepth is %d and MAX_DEPTH is %d\n",depth,m_iMAX_DEPTH_ALLOWED );
+			continue;
+		}
+
+		if ( m_iPreProcessLevel == MAX_PRE_PROCESS_LEVEL && depth == MAX_PRE_PROCESS_LEVEL){
 			continue;
 		}
 		//fprintf(stderr, "%d depth %d is MAX_DEPTH\n", depth,m_iMAX_DEPTH_ALLOWED);

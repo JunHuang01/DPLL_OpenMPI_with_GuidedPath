@@ -16,4 +16,14 @@ SAT Solver Program
 #define UNASSIGNED -1
 #define ASSIGNTRUE 1
 #define ASSIGNFALSE 0
+
+
+
+#define MASTERPROC 0
+#define NORMAL_PROCESSING -1
+#define MAX_PRE_PROCESS_LEVEL 12
+
+
+#define WORKER_INACTIVE 0
+#define WORKER_ACTIVE 1
 #endif

@@ -32,6 +32,9 @@ public:
 
 	void Solve();
 
+	
+	void initMaster();
+
 private:
 	SATSET m_SATSET;
 	int m_iMaxClause;
@@ -41,16 +44,24 @@ private:
 	int m_iConflicts;
 	int m_iMAX_GPCount;
 	clock_t m_startTime;
+
+
 	WorkPool m_SlaveWorkPool;
 	WorkPool m_MasterWorkPool;
+	int m_iPreProcessLevel;
+	int iNextProcToAsk;
+
+	SolSet WorkerActivityList;
 
 	SolSet getNewSolSet();
 	bool isAllVarAssigned(SolSet currSol);
-	bool runDPLL(SolSet leftSol, SolSet rightSol, SATSET currClauses,int depth,int bPreProcess=0);
+	bool runDPLL(SolSet leftSol, SolSet rightSol, SATSET currClauses,int depth);
 	bool evalTruthValue(int iVar, int currAssign);
 
 	void printSolSet(SolSet currSol);
 	int pickVar(SATSET currClauses,SolSet currSol);
+	void MasterProduceInitialGP();
+	void LunchSlaves();
 
 };
 
