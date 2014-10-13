@@ -337,7 +337,7 @@ void dpll::LunchSlaves()
 	int iWorkPoolSize = m_MasterWorkPool.size();
 	fprintf(stderr, "The size of the master work pool is %d\n", iWorkPoolSize);
 
-	int iNumGPToSend = ceil((iWorkerSize/2)/double(m_nProc));
+	int iNumGPToSend = ceil((iWorkPoolSize/2)/double(m_nProc));
 
 	for ( int iProc = 0; iProc < m_nProc  ; iProc++)
 	{
