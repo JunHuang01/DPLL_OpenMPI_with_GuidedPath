@@ -279,7 +279,7 @@ void dpll::MasterProduceInitialGP()
 
 
 
-	//fprintf(stderr, "%d is size\n", leftSol.size() );
+	fprintf(stderr, "%d is size\n", leftSol.size() );
 	int depth = 0;
 	int iVarToPick = pickVar(m_SATSET,temp);
 
