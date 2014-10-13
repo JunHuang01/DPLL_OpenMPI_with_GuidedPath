@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <stack>
 
 #include "Constants.h"
 #include "CommonTypes.h"
@@ -17,7 +18,10 @@ struct GuidedPath{
 		this->currClauses = currClauses;
 		this->depth = depth;
 	}
+
 };
+
+typedef std::stack<GuidedPath> WorkPool;
 
 class dpll{
 public:
