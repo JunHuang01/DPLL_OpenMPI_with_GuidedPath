@@ -1,3 +1,4 @@
+#include <mpi.h>
 
 #include <iostream>
 #include <stdio.h>
@@ -9,7 +10,7 @@
 #include "Constants.h"
 #include "dpll.h"
 
-#include <mpi.h>
+
 
 
 typedef enum eAlgo{eGA=0,eDPLL} eAlgo;
