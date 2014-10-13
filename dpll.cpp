@@ -123,6 +123,7 @@ void dpll::MasterProduceInitialGP()
 	m_iPreProcessLevel = MAX_PRE_PROCESS_LEVEL;
 	Solve();
 	m_MasterWorkPool = m_SlaveWorkPool;
+	fprintf(stderr, "The size of the master work pool is %d\n", m_SlaveWorkPool.size());
 }
 
 void dpll::printSolSet(SolSet currSol)
