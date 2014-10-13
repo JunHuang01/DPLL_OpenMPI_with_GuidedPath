@@ -39,8 +39,11 @@ public:
 
 	void SlaveInitialRecv();
 
-	void Slave
+	void SlaveAskForMoreWork();
 
+	void MasterAskForMoreWork();
+
+	bool IsThereActiveSlave();
 private:
 	SATSET m_SATSET;
 	int m_iMaxClause;

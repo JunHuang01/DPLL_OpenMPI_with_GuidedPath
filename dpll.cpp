@@ -297,6 +297,27 @@ void dpll::MasterProduceInitialGP()
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
 }
 
+
+void dpll::SlaveAskForMoreWork(){
+	if (m_bMasterProc == true) return;
+
+}
+
+void dpll::MasterAskForMoreWork()
+{
+	if (m_bMasterProc == false) return;	
+}
+
+bool dpll::IsThereActiveSlave(){
+	int iWorkerSize =  WorkerActivityList.size();
+	for ( int i = 0; i < iWorkerSize ; i++)
+	{
+		if (WorkerActivityList.at(i)) return true;
+	}
+
+	return false;
+}
+
 //Parallel private
 void dpll::LunchSlaves()
 {
