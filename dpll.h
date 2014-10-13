@@ -37,6 +37,8 @@ public:
 	
 	void initMaster();
 
+	void SlaveInitialRecv();
+
 private:
 	SATSET m_SATSET;
 	int m_iMaxClause;
