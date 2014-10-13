@@ -325,9 +325,9 @@ bool dpll::IsThereActiveSlave(){
 //Parallel private
 void dpll::packGPToSend(WorkPool &currGPToSend, int iGPToSend){
 	int iWorkPoolSize = m_MasterWorkPool.size();
-	if (iWorkerSizeSize < 40 )  iGPToSend = 1;
+	if (iWorkPoolSize < 40 )  iGPToSend = 1;
 	for(int i = 0; i < iGPToSend && !m_MasterWorkPool.empty(); i++){
-		currGPToSend->push(m_MasterWorkPool.top());
+		currGPToSend.push(m_MasterWorkPool.top());
 		m_MasterWorkPool.pop();
 	}
 }
