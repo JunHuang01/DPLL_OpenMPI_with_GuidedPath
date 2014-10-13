@@ -21,7 +21,7 @@ struct GuidedPath{
 
 };
 
-typedef std::stack<GuidedPath> WorkPool;
+typedef std::stack<GuidedPath*> WorkPool;
 
 class dpll{
 public:
@@ -43,11 +43,13 @@ private:
 	clock_t m_startTime;
 
 	SolSet getNewSolSet();
-	bool runDPLL(SolSet currSol, SATSET currClauses,int depth);
+	bool isAllVarAssigned(SolSet currSol);
+	bool runDPLL(SolSet leftSol, SolSet rightSol, SATSET currClauses,int depth);
 	bool evalTruthValue(int iVar, int currAssign);
 
 	void printSolSet(SolSet currSol);
 	int pickVar(SATSET currClauses,SolSet currSol);
+
 };
 
 

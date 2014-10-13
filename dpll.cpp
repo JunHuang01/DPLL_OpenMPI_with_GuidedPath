@@ -64,7 +64,7 @@ void dpll::Solve()
 	//printSolSet(rightSol);
 
 
-	bool bSolved = runDPLL(leftSol,m_SATSET,0) || runDPLL(rightSol,m_SATSET,0);
+	bool bSolved = runDPLL(leftSol,rightSol,m_SATSET,0);//|| runDPLL(rightSol,m_SATSET,0);
 	timeElapsed = double(clock() - startTime)/CLOCKS_PER_SEC;
 	fprintf(stdout, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
@@ -100,79 +100,116 @@ bool dpll::evalTruthValue(int iVar, int currAssign)
 }
 
 
-bool dpll::runDPLL(SolSet currSol, SATSET currClauses,int depth)
+bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
 {
+	SolSet currSol;
+	WorkPool currWorkPool;
 
-	if (depth == m_iMAX_DEPTH_ALLOWED){
-		m_iMAX_GPCount++;
-		return false;
-	}
-	//fprintf(stderr, "%d depth %d is MAX_DEPTH\n", depth,m_iMAX_DEPTH_ALLOWED);
-	//printSolSet(&currSol);
-	//unit propagate
-	//double timeElapsed = double(clock() - m_startTime)/CLOCKS_PER_SEC;
+	int iCurrClauseCount;
+	currWorkPool.push(new GuidedPath(rightSol,currClauses,depth));
+	currWorkPool.push(new GuidedPath(leftSol,currClauses,depth));
+	
+	while(!currWorkPool.empty()){
+		//fprintf(stderr, "%d is the size of work pool\n", currWorkPool.size() );
+		bool bFoundConflict = false;
+		GuidedPath* pCurrGuidedPath = currWorkPool.top();
+		currWorkPool.pop();
+		currSol = pCurrGuidedPath->currSol;
+		currClauses =pCurrGuidedPath->currClauses;
+		depth = pCurrGuidedPath->depth;
+		//printSolSet(currSol);
+		delete pCurrGuidedPath;
+		pCurrGuidedPath = NULL;
+		if (m_iMAX_DEPTH_ALLOWED > 0 &&depth == 11 /*m_iMAX_DEPTH_ALLOWED*/){
+			m_iMAX_GPCount++;
+			//fprintf(stderr, "The currDepth is %d and MAX_DEPTH is %d\n",depth,m_iMAX_DEPTH_ALLOWED );
+			continue;
+		}
+		//fprintf(stderr, "%d depth %d is MAX_DEPTH\n", depth,m_iMAX_DEPTH_ALLOWED);
+		//printSolSet(&currSol);
+		//unit propagate
+		//double timeElapsed = double(clock() - m_startTime)/CLOCKS_PER_SEC;
 
-	//if (timeElapsed > MAX_TIME_LIMIT) return false;
-	int iCurrClauseCount = currClauses.size();
+		//if (timeElapsed > MAX_TIME_LIMIT) return false;
+		iCurrClauseCount = currClauses.size();
+		//fprintf(stderr, "clauses count %d\n",iCurrClauseCount );
+		for ( int i = 0; i < iCurrClauseCount; ++i)
+		{
+			SolSet currClause = currClauses[i];
+			int jLen = currClause.size();
+			
+			for ( int j = 0 ; j < jLen ; ++j){
+				int currVar = currClause[j];
+				int currAssign = currSol[abs(currVar)-1];
 
-	for ( int i = 0; i < iCurrClauseCount; ++i)
-	{
-		SolSet currClause = currClauses[i];
-		int jLen = currClause.size();
-		
-		for ( int j = 0 ; j < jLen ; ++j){
-			int currVar = currClause[j];
-			int currAssign = currSol[abs(currVar)-1];
+				//Variable not assigned continue 
+				if (currAssign == UNASSIGNED)
+					continue;
 
-			//Variable not assigned continue 
-			if (currAssign == UNASSIGNED)
-				continue;
+				//evaluate variable, if true then the clause is true, remove this from the list
+				if (evalTruthValue(currVar,currAssign))
+				{
+					currClauses.erase(currClauses.begin()+i);
+					iCurrClauseCount--;
+					i--;
+					break;
+				}
+				else
+				{	
+					currClause.erase(currClause.begin()+j);
+					jLen--;
+					j--;
+				}
+			}
 
-			//evaluate variable, if true then the clause is true, remove this from the list
-			if (evalTruthValue(currVar,currAssign))
+			//check for contradiction
+			if(jLen == 0)
 			{
-				currClauses.erase(currClauses.begin()+i);
-				iCurrClauseCount--;
-				i--;
+				m_iHighestC = std::max(m_iHighestC, m_iMaxClause- iCurrClauseCount);
+				m_iConflicts++;
+				bFoundConflict = true;
 				break;
 			}
-			else
-			{	
-				currClause.erase(currClause.begin()+j);
-				jLen--;
-				j--;
-			}
 		}
 
-		//check for contradiction
-		if(jLen == 0)
+		if(bFoundConflict) continue;
+
+		//if all clauses are consitent return true
+		if (iCurrClauseCount == 0) 
 		{
 			m_iHighestC = std::max(m_iHighestC, m_iMaxClause- iCurrClauseCount);
-			m_iConflicts++;
-			return false;
+			return true;
 		}
+
+
+
+		int iVarToPick = pickVar(currClauses,currSol);
+
+		SolSet leftSol = currSol;
+		SolSet rightSol = currSol;
+		SATSET leftClauses = currClauses;
+		SATSET rightClauses = currClauses;
+
+		leftSol[iVarToPick] = 1;
+		rightSol[iVarToPick] = 0;
+		//choose the variable with the most apperance as next variable to search
+
+
+		//Record highest Clause solved
+		//return runDPLL(leftSol,currClauses,depth+1) || runDPLL(rightSol,currClauses,depth+1);
+		currWorkPool.push(new GuidedPath(rightSol,rightClauses,depth+1));
+		currWorkPool.push(new GuidedPath(leftSol,leftClauses,depth+1));
 	}
 
-	//if all clauses are consitent return true
-	if (iCurrClauseCount == 0) 
-	{
-		m_iHighestC = std::max(m_iHighestC, m_iMaxClause- iCurrClauseCount);
-		return true;
+	return false;
+}
+
+bool dpll::isAllVarAssigned(SolSet currSol){
+	int iLen = currSol.size();
+	for ( int i = 0 ; i < iLen ; i++){
+		if (currSol.at(i) == UNASSIGNED) return false;
 	}
-
-	//choose a variable
-	int iVarToPick = pickVar(currClauses,currSol);
-
-	SolSet leftSol = currSol;
-	SolSet rightSol = currSol;
-
-	leftSol[iVarToPick] = 1;
-	rightSol[iVarToPick] = 0;
-	//choose the variable with the most apperance as next variable to search
-
-
-	//Record highest Clause solved
-	return runDPLL(leftSol,currClauses,depth+1) || runDPLL(rightSol,currClauses,depth+1);
+	return true;
 }
 
 int dpll::pickVar(SATSET currClauses, SolSet currSol)
