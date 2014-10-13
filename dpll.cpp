@@ -122,8 +122,6 @@ void dpll::MasterProduceInitialGP()
 {
 	m_iPreProcessLevel = MAX_PRE_PROCESS_LEVEL;
 	Solve();
-	m_MasterWorkPool = m_SlaveWorkPool;
-	fprintf(stderr, "The size of the master work pool is %d\n", m_SlaveWorkPool.size());
 }
 
 void dpll::printSolSet(SolSet currSol)
@@ -171,6 +169,7 @@ bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
 
 		if ( m_iPreProcessLevel == MAX_PRE_PROCESS_LEVEL && depth == MAX_PRE_PROCESS_LEVEL){
 			m_iMAX_GPCount++;
+			m_MasterWorkPool.push(GuidedPath(currSol,currClauses,depth));
 			continue;
 		}
 		//fprintf(stderr, "%d depth %d is MAX_DEPTH\n", depth,m_iMAX_DEPTH_ALLOWED);
@@ -248,6 +247,7 @@ bool dpll::runDPLL(SolSet leftSol,SolSet rightSol, SATSET currClauses,int depth)
 		m_SlaveWorkPool.push( GuidedPath(rightSol,rightClauses,depth+1));
 		m_SlaveWorkPool.push( GuidedPath(leftSol,leftClauses,depth+1));
 	}
+
 
 	return false;
 }
