@@ -462,9 +462,12 @@ void dpll::LunchSlaves()
 		MPI_Status status;
 
 		PackedData * myPackedData = new PackedData(GPToSend);
-		int totalGPByteSize = int(sizeof(GPToSend));
+		int totalGPByteSize = int(sizeof(myPackedData));
 
 		MPI_Send(&totalGPByteSize,1,MPI_INT,destPE,InitialSendRecvTag,
+			MPI_COMM_WORLD);
+		int iSize = GPToSend.size();
+		MPI_Send(&iSize,1,MPI_INT,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 
 		fprintf(stderr, "We started lunching slave %d\n",destPE );
@@ -484,30 +487,28 @@ void dpll::SlaveInitialRecv(){
 	if (m_bMasterProc == true) return;
 	MPI_Status status;
 	int iTotalByteSizeOfGP = 0;
+	int iSize = -1;
 	
 	WorkPool* tempRecvWorkPool;
 	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
 
-	
-	if (iTotalByteSizeOfGP > 0 ){
-		fprintf(stderr, "We started at slave %d have recved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
-		void * myBuff;
-		myBuff = (void*)malloc(iTotalByteSizeOfGP);
-
-		MPI_Recv(myBuff,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
+	MPI_Recv(&iSize, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
+	MPI_COMM_WORLD,&status);
+	if (iTotalByteSizeOfGP > 0 && iSize >= 0 ){
+		fprintf(stderr, "We started at slave %d have recieved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
+		
+		PackedData *  myPackedData = PackedData(iSize);
+		fprintf(stderr, "We started at slave %d have Created %d byte\n",m_iProc ,sizeof(myPackedData));
+		MPI_Recv(myPackedData,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
 
-		tempRecvWorkPool = (WorkPool*)myBuff;
 	}
 
+	
 
 	if(status.MPI_SOURCE == MASTERPROC)
-		{while(!tempRecvWorkPool->empty()){
-			m_SlaveWorkPool.push(tempRecvWorkPool->top());
-			tempRecvWorkPool->pop();
-		}
-		
+		myPackedData->GetWorkPool(m_SlaveWorkPool);
 		fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,m_SlaveWorkPool.size() );
 	}
 }

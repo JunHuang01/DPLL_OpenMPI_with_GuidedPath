@@ -19,6 +19,10 @@ struct GuidedPath{
 		this->depth = depth;
 	}
 
+	GuidedPath(){
+
+	}
+
 };
 
 
@@ -36,7 +40,19 @@ struct PackedData{
 			GPPacked.push_back(currGP.top());
 			currGP.pop();
 		}
-	}	
+	}
+	PackedData(int iNumGP){
+		this->iSize = iNumGP;
+		for ( int i = 0; i < iNumGP; i++){
+			GPPacked.push_back(GuidedPath());
+		}
+	}
+
+	void GetWorkPool(WorkPool &currGP){
+		for (int i = 0 ; this->iSize; i++){
+			currGP.push(GPPacked.at(i));
+		}
+	}		
 };
 
 class dpll{
