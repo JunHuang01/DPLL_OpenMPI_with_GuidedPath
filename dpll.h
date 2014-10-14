@@ -41,9 +41,13 @@ public:
 
 	void SlaveAskForMoreWork();
 
-	void MasterAskForMoreWork();
-
 	bool IsThereActiveSlave();
+
+	bool MasterListener();
+
+	void printResultOnSuccess();
+
+	void MasterGenerateWork();
 
 	void packGPToSend(WorkPool &currGPToSend, int iGPToSend = 10);
 private:
@@ -54,6 +58,8 @@ private:
 	int m_iMAX_DEPTH_ALLOWED;
 	int m_iConflicts;
 	int m_iMAX_GPCount;
+
+	int m_iLastProcAsked;
 	clock_t m_startTime;
 
 
@@ -76,6 +82,9 @@ private:
 	void MasterProduceInitialGP();
 	void LunchSlaves();
 
+	void MasterAskForMoreWork(int destPE);
+
+	void GetNextActiveProc();
 };
 
 

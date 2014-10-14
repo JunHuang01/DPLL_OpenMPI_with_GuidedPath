@@ -24,6 +24,7 @@ dpll::dpll(){
 	m_iConflicts = 0;
 	m_iMAX_GPCount = 0;
 	m_bMasterProc = false;
+	m_iLastProcAsked = 0;
 }
 
 dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOWED){
@@ -35,6 +36,7 @@ dpll::dpll(SATSET inputData,int iMaxClause, int iMaxVarTypes,int MAX_DEPTH_ALLOW
 	m_iMAX_GPCount = 0;
 	m_iMAX_DEPTH_ALLOWED = MAX_DEPTH_ALLOWED;
 	m_bMasterProc = false;
+	m_iLastProcAsked = 0;
 }
 
 dpll::dpll(SATSET inputData,int iMaxClause,
@@ -50,6 +52,8 @@ dpll::dpll(SATSET inputData,int iMaxClause,
 	m_bMasterProc = bMasterProc;
 	m_iProc = iProc;
 	m_nProc = nProc;
+	m_startTime = clock();
+	m_iLastProcAsked = 0;
 }
 
 
@@ -269,6 +273,11 @@ void dpll::SlaveInitialRecv(){
 
 	MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
+
+	while(!tempRecvWorkPool->empty()){
+		m_SlaveWorkPool.push(tempRecvWorkPool->top());
+		tempRecvWorkPool->pop();
+	}
 	
 	fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,tempRecvWorkPool->size() );
 }
@@ -311,15 +320,101 @@ void dpll::MasterProduceInitialGP()
 		int(bSolved), timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
 }
 
-
+void dpll::printResult(int bSolved){
+	double timeElapsed = double(clock() - m_startTime)/CLOCKS_PER_SEC;
+	int iGlobalConflicts = 0;
+	int iGlobalHighestC = 0;
+	MPI_Allreduce(&m_iConflicts,&iGlobalConflicts,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+	MPI_Allreduce(&m_iHighestC,&iGlobalHighestC,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
+	fprintf(stdout, "Solve=%d\tTimeSpent=%f\tHighestC=%d\tConflicts=%d\tMaxGP=%d\n", 
+		bSolved,timeElapsed, m_iHighestC, m_iConflicts, m_iMAX_GPCount);
+}
 void dpll::SlaveAskForMoreWork(){
 	if (m_bMasterProc == true) return;
+	MPI_Send(&iProc,1,MPI_INT,MASTERPROC,SlaveAskMasterTag,MPI_COMM_WORLD);
 
+	MPI_Status status;
+	int iTotalByteSizeOfGP = 0;
+	
+	WorkPool* tempRecvWorkPool;
+	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,MasterSendToSlaveTag,
+		MPI_COMM_WORLD,&status);
+
+	if (iTotalByteSizeOfGP > 0 ){
+		tempRecvWorkPool = (WorkPool*)malloc(iTotalByteSizeOfGP);
+	}
+
+	MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,MasterSendToSlaveTag,
+		MPI_COMM_WORLD,&status);
+
+	while(!tempRecvWorkPool->empty()){
+		m_SlaveWorkPool.push(tempRecvWorkPool->top());
+		tempRecvWorkPool->pop();
+	}
 }
 
+
+bool dpll::MasterListener()
+{
+	MPI_Status status;
+	int sourcePE = -1;
+	MPI_Recv(&sourcePE,1,MPI_INT,MPI_ANY_SOURCE,SlaveAskMasterTag,MPI_COMM_WORLD,&status);
+
+	if(sourcePE>=0){
+		WorkerActivityList.at(sourcePE) = WORKER_INACTIVE;
+		if(!IsThereActiveSlave()){
+			int bSolved = 0; //Set is Unsatisfiable
+			printResult(bSolved);
+			MPI_Finalize();
+			return(0);
+		}
+		else{
+			MasterGenerateWork(sourcePE);
+		}
+	}
+}
+
+void dpll::GetNextActiveProc(){
+	int iTempProc = m_iLastProcAsked;
+	m_iLastProcAsked = m_iLastProcAsked >= m_nProc-1 ? 0 , m_iLastProcAsked++;
+	while(WorkerActivityList.at(m_iLastProcAsked) == WORKER_INACTIVE){
+		m_iLastProcAsked = m_iLastProcAsked >= m_nProc-1 ? 0 , m_iLastProcAsked++;
+		if (iTempProc == m_iLastProcAsked){
+			fprintf(stderr, "No active proc, should terminate\n");
+			printResult(0);
+			MPI_Finalize();
+		}
+	}
+}
 void dpll::MasterAskForMoreWork()
 {
 	if (m_bMasterProc == false) return;	
+	GetNextActiveProc();
+	int iAsk = MasterAskSlaveTag;
+
+	MPI_Status status;
+	MPI_Isend(&iAsk,1,MPI_INT,m_iLastProcAsked,MasterAskSlaveTag,MPI_COMM_WORLD,&status);
+
+	MPI_Status status;
+	int iTotalByteSizeOfGP = 0;
+	
+	WorkPool* tempRecvWorkPool;
+	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,m_iLastProcAsked,SlaveSendToMasteTag,
+		MPI_COMM_WORLD,&status);
+
+	if (iTotalByteSizeOfGP > 0 ){
+		tempRecvWorkPool = (WorkPool*)malloc(iTotalByteSizeOfGP);
+	}
+
+	MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,m_iLastProcAsked,SlaveSendToMasteTag,
+		MPI_COMM_WORLD,&status);
+
+	while(!tempRecvWorkPool->empty()){
+		m_MasterWorkPool.push(tempRecvWorkPool->top());
+		tempRecvWorkPool->pop();
+	}
+
+
 }
 
 bool dpll::IsThereActiveSlave(){
@@ -333,6 +428,29 @@ bool dpll::IsThereActiveSlave(){
 }
 
 //Parallel private
+
+void dpll::SlaveSplitWork(){
+	int iRecv = -1;
+	MPI_Request request;
+	MPI_Irecv(&iRecv, 1, MPI_INT, MASTERPROC,MasterAskSlaveTag,
+		MPI_COMM_WORLD,&request);
+
+	if (iRecv == MasterAskSlaveTag){
+		WorkPool currGPToSend;
+		int iCurrGPCount = m_SlaveWorkPool.size();
+		int iSendGPCount = iCurrGPCount/2;
+		for ( int i = 0 ; i < iSendGPCount && !m_SlaveWorkPool.empty() ; i++)
+		{
+			currGPToSend.push(m_SlaveWorkPool.top());
+			m_SlaveWorkPool.pop();
+		}
+
+		MPI_Isend(&totalGPByteSize,1,MPI_INT,MASTERPROC,SlaveSendToMasteTag,
+			MPI_COMM_WORLD,&request);
+		MPI_Isend((void*)&GPToSend,totalGPByteSize,MPI_BYTE,MASTERPROC,SlaveSendToMasteTag,
+			MPI_COMM_WORLD,&request);
+	}
+}
 void dpll::packGPToSend(WorkPool &currGPToSend, int iGPToSend){
 	int iWorkPoolSize = m_MasterWorkPool.size();
 	if (iWorkPoolSize < 40 )  iGPToSend = 1;
@@ -363,6 +481,24 @@ void dpll::LunchSlaves()
 		MPI_Isend(&totalGPByteSize,1,MPI_INT,destPE,InitialSendRecvTag,MPI_COMM_WORLD,&request);
 		MPI_Isend((void*)&GPToSend,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD,&request);
+		WorkerActivityList.at(destPE) = WORKER_ACTIVE;
 	}
 
+}
+
+void dpll::MasterGenerateWork(int destPE)
+{
+	WorkPool GPToSend;
+	int iCurrGPCount = m_MasterWorkPool.size();
+	if(iCurrGPCount <= 0){	
+		MasterAskForMoreWork();
+	}
+
+	packGPToSend(GPToSend);
+		int totalGPByteSize = int(sizeof(GPToSend));
+		MPI_Isend(&totalGPByteSize,1,MPI_INT,destPE,MasterSendToSlaveTag,
+			MPI_COMM_WORLD,&request);
+		MPI_Isend((void*)&GPToSend,totalGPByteSize,MPI_BYTE,destPE,MasterSendToSlaveTag,
+			MPI_COMM_WORLD,&request);
+		WorkerActivityList.at(destPE) = WORKER_ACTIVE;
 }

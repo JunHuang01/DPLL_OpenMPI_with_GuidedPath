@@ -78,7 +78,7 @@ int main(int argc, char ** argv){
 		case eDPLL:{
 			dpll * pMaster;
 			dpll * pSlave;
-			bool bSolved = false;
+			int bSolved = 0; //would prefer bool, but MPI does not support bool for passing
 			//fprintf(stderr, "dpll in process\n" );
 
 			/*------- Begin Master proc --------*/
@@ -91,6 +91,10 @@ int main(int argc, char ** argv){
 
 				//Generate inital GP and lunch Slaves
 				pMaster->initMaster();
+
+				//This is false when all process are idle
+				pMaster->MasterListener();
+
 			}
 			/*--------- End Master proc----------*/
 
@@ -105,19 +109,25 @@ int main(int argc, char ** argv){
 					MAX_DEPTH_ALLOWED,iProc,nProc,bMasterProc);
 
 			//initial recv queue
-
 			pSlave->SlaveInitialRecv();
 			
-			while(bSolved){
 
+			while(!bSolved){
+				//run solver while answer is not found
+				bSolved = (int)pSlave->runDPLL();
 
-
-			//run solver while answer is not found
-
-			//if answer found bcast end program
-
-			//if answer not found and queue is empty ask for more 
-
+				//if answer found bcast end program
+				if(bSolved){
+					MPI_Bcast(&Solved,1,MPI_INT,iProc,MPI_COMM_WORLD);
+					pSlave->printResult(bSolved);
+					MPI_Finalize()
+					return(0);
+				}
+				else//if answer not found and queue is empty ask for more 
+				{
+					pSlave->SlaveAskForMoreWork();
+				}
+				
 			}
 			/*---------End Slave proc------------*/
 
