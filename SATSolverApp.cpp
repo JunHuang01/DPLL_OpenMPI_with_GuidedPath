@@ -93,8 +93,6 @@ int main(int argc, char ** argv){
 				pMaster->initMaster();
 
 				fprintf(stderr, "we finished init master\n" );
-				//This is false when all process are idle
-				while(!bSolved) pMaster->MasterListener();
 			}
 			/*--------- End Master proc----------*/
 
@@ -129,6 +127,8 @@ int main(int argc, char ** argv){
 				{
 
 					pSlave->SlaveAskForMoreWork();
+					//This is false when all process are idle
+					pMaster->MasterListener();
 				}
 				
 			}
