@@ -118,7 +118,7 @@ int main(int argc, char ** argv){
 
 				//if answer found bcast end program
 				if(bSolved){
-					MPI_Bcast(&Solved,1,MPI_INT,iProc,MPI_COMM_WORLD);
+					MPI_Bcast(&bSolved,1,MPI_INT,iProc,MPI_COMM_WORLD);
 					pSlave->printResult(bSolved);
 					MPI_Finalize();
 					return(0);
