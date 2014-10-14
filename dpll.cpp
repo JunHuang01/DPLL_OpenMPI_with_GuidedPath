@@ -359,9 +359,9 @@ void dpll::SlaveAskForMoreWork(){
 
 bool dpll::MasterListener()
 {
-	MPI_Status status;
+	MPI_Request request;
 	int sourcePE = -1;
-	MPI_Recv(&sourcePE,1,MPI_INT,MPI_ANY_SOURCE,SlaveAskMasterTag,MPI_COMM_WORLD,&status);
+	MPI_Irecv(&sourcePE,1,MPI_INT,MPI_ANY_SOURCE,SlaveAskMasterTag,MPI_COMM_WORLD,&request);
 
 	if(sourcePE>=0){
 		WorkerActivityList.at(sourcePE) = WORKER_INACTIVE;
