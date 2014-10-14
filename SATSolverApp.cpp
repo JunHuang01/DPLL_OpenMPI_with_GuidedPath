@@ -94,7 +94,7 @@ int main(int argc, char ** argv){
 
 				fprintf(stderr, "we finished init master\n" );
 				//This is false when all process are idle
-				pMaster->MasterListener();
+				//pMaster->MasterListener();
 
 			}
 			/*--------- End Master proc----------*/
@@ -114,7 +114,7 @@ int main(int argc, char ** argv){
 			
 			//fprintf(stderr, "%d is the checked in 1 \n",iProc );
 
-			while(!bSolved){
+			/*while(!bSolved){
 				//fprintf(stderr, "%d is the checked in 2\n",iProc );
 				//run solver while answer is not found
 				bSolved = (int)pSlave->runDPLL();
