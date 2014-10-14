@@ -394,7 +394,8 @@ void dpll::MasterAskForMoreWork()
 	int iAsk = MasterAskSlaveTag;
 
 	MPI_Status status;
-	MPI_Isend(&iAsk,1,MPI_INT,m_iLastProcAsked,MasterAskSlaveTag,MPI_COMM_WORLD,&status);
+	MPI_Request request;
+	MPI_Isend(&iAsk,1,MPI_INT,m_iLastProcAsked,MasterAskSlaveTag,MPI_COMM_WORLD,&request);
 
 	int iTotalByteSizeOfGP = 0;
 	
