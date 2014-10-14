@@ -111,11 +111,12 @@ int main(int argc, char ** argv){
 			//initial recv queue
 			pSlave->SlaveInitialRecv();
 			
+			
 
 			while(!bSolved){
 				//run solver while answer is not found
 				bSolved = (int)pSlave->runDPLL();
-
+				
 				//if answer found bcast end program
 				if(bSolved){
 					MPI_Bcast(&bSolved,1,MPI_INT,iProc,MPI_COMM_WORLD);
@@ -125,7 +126,8 @@ int main(int argc, char ** argv){
 				}
 				else//if answer not found and queue is empty ask for more 
 				{
-					//pSlave->SlaveAskForMoreWork();
+
+					pSlave->SlaveAskForMoreWork();
 				}
 				
 			}

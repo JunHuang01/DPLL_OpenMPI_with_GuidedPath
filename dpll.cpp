@@ -199,6 +199,7 @@ bool dpll::runDPLL()
 		//return runDPLL(leftSol,currClauses,depth+1) || runDPLL(rightSol,currClauses,depth+1);
 		m_SlaveWorkPool.push( GuidedPath(rightSol,rightClauses,depth+1));
 		m_SlaveWorkPool.push( GuidedPath(leftSol,leftClauses,depth+1));
+		fprintf(stderr, "%d is the checked in at depth %d\n",m_iProc,depth);
 		SlaveSplitWork();
 	}
 
