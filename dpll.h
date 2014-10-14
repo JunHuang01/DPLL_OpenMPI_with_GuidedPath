@@ -45,9 +45,9 @@ public:
 
 	bool MasterListener();
 
-	void printResultOnSuccess();
+	void printResult(int bSolve);
 
-	void MasterGenerateWork();
+	void MasterGenerateWork(int destPE);
 
 	void packGPToSend(WorkPool &currGPToSend, int iGPToSend = 10);
 private:

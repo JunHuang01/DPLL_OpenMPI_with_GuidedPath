@@ -331,7 +331,8 @@ void dpll::printResult(int bSolved){
 }
 void dpll::SlaveAskForMoreWork(){
 	if (m_bMasterProc == true) return;
-	MPI_Send(&iProc,1,MPI_INT,MASTERPROC,SlaveAskMasterTag,MPI_COMM_WORLD);
+
+	MPI_Send(&m_iProc,1,MPI_INT,MASTERPROC,SlaveAskMasterTag,MPI_COMM_WORLD);
 
 	MPI_Status status;
 	int iTotalByteSizeOfGP = 0;
@@ -376,9 +377,9 @@ bool dpll::MasterListener()
 
 void dpll::GetNextActiveProc(){
 	int iTempProc = m_iLastProcAsked;
-	m_iLastProcAsked = m_iLastProcAsked >= m_nProc-1 ? 0 , m_iLastProcAsked++;
+	m_iLastProcAsked = m_iLastProcAsked >= m_nProc-1 ? 0 : m_iLastProcAsked++;
 	while(WorkerActivityList.at(m_iLastProcAsked) == WORKER_INACTIVE){
-		m_iLastProcAsked = m_iLastProcAsked >= m_nProc-1 ? 0 , m_iLastProcAsked++;
+		m_iLastProcAsked = m_iLastProcAsked >= m_nProc-1 ? 0 : m_iLastProcAsked++;
 		if (iTempProc == m_iLastProcAsked){
 			fprintf(stderr, "No active proc, should terminate\n");
 			printResult(0);
