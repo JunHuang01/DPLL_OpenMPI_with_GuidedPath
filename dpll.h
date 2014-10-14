@@ -31,9 +31,6 @@ public:
 		int MAX_DEPTH_ALLOWED,int iProc,int nProc,bool bMasterProc);
 	~dpll();
 
-
-	void Solve();
-
 	
 	void initMaster();
 
@@ -52,6 +49,8 @@ public:
 	void packGPToSend(WorkPool &currGPToSend, int iGPToSend = 10);
 
 	void SlaveSplitWork();
+
+	bool runDPLL();
 private:
 	SATSET m_SATSET;
 	int m_iMaxClause;
@@ -76,7 +75,7 @@ private:
 
 	SolSet getNewSolSet();
 	bool isAllVarAssigned(SolSet currSol);
-	bool runDPLL();
+	
 	bool evalTruthValue(int iVar, int currAssign);
 
 	void printSolSet(SolSet currSol);

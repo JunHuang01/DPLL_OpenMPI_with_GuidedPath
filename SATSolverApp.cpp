@@ -120,7 +120,7 @@ int main(int argc, char ** argv){
 				if(bSolved){
 					MPI_Bcast(&Solved,1,MPI_INT,iProc,MPI_COMM_WORLD);
 					pSlave->printResult(bSolved);
-					MPI_Finalize()
+					MPI_Finalize();
 					return(0);
 				}
 				else//if answer not found and queue is empty ask for more 
