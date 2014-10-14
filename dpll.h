@@ -21,7 +21,19 @@ struct GuidedPath{
 
 };
 
+
+
 typedef std::stack<GuidedPath> WorkPool;
+
+struct PackedData{
+	WorkPool currGP;
+	PackedData(WorkPool currGP){
+		while(!currGP.empty()) {
+			this->currGP.push(currGP.top());
+			currGP.pop();
+		}
+	}	
+};
 
 class dpll{
 public:
