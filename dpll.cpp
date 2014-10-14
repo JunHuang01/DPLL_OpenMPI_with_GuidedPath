@@ -498,7 +498,7 @@ void dpll::SlaveInitialRecv(){
 	if (iTotalByteSizeOfGP > 0 && iSize >= 0 ){
 		fprintf(stderr, "We started at slave %d have recieved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
 		
-		PackedData *  myPackedData = &PackedData(iSize);
+		PackedData *  myPackedData = new PackedData(iSize);
 		fprintf(stderr, "We started at slave %d have Created %d byte\n",m_iProc ,sizeof(myPackedData));
 		MPI_Recv(myPackedData,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
@@ -507,7 +507,7 @@ void dpll::SlaveInitialRecv(){
 
 	
 
-	if(status.MPI_SOURCE == MASTERPROC)
+	if(status.MPI_SOURCE == MASTERPROC){
 		myPackedData->GetWorkPool(m_SlaveWorkPool);
 		fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,m_SlaveWorkPool.size() );
 	}
