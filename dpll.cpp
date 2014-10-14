@@ -276,12 +276,14 @@ void dpll::SlaveInitialRecv(){
 	MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
 
-	while(!tempRecvWorkPool->empty()){
-		m_SlaveWorkPool.push(tempRecvWorkPool->top());
-		tempRecvWorkPool->pop();
+	if(status.MPI_SOURCE == MASTERPROC)
+		{while(!tempRecvWorkPool->empty()){
+			m_SlaveWorkPool.push(tempRecvWorkPool->top());
+			tempRecvWorkPool->pop();
+		}
+		
+		fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,tempRecvWorkPool->size() );
 	}
-	
-	fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,tempRecvWorkPool->size() );
 }
 
 //in paralllel, this is initial generate GP routine, should only be used by master once
