@@ -31,6 +31,8 @@ struct GuidedPath{
 
 typedef std::stack<GuidedPath> WorkPool;
 
+
+//Failed attempt at passing message with C++ container
 struct PackedData{
 	GuidedPath GPPacked[INT_MAX];
 	int iSize;
