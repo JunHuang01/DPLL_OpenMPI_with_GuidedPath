@@ -111,12 +111,13 @@ int main(int argc, char ** argv){
 			//initial recv queue
 			pSlave->SlaveInitialRecv();
 			
-			
+			fprintf(stderr, "%d is the checked in \n",m_iProc );
 
 			while(!bSolved){
+				fprintf(stderr, "%d is the checked in \n",m_iProc );
 				//run solver while answer is not found
 				bSolved = (int)pSlave->runDPLL();
-				
+
 				//if answer found bcast end program
 				if(bSolved){
 					MPI_Bcast(&bSolved,1,MPI_INT,iProc,MPI_COMM_WORLD);
