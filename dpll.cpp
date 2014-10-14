@@ -486,6 +486,7 @@ void dpll::LunchSlaves()
 void dpll::SlaveInitialRecv(){
 	if (m_bMasterProc == true) return;
 	MPI_Status status;
+	PackedData *  myPackedData;
 	int iTotalByteSizeOfGP = 0;
 	int iSize = -1;
 	
@@ -498,7 +499,7 @@ void dpll::SlaveInitialRecv(){
 	if (iTotalByteSizeOfGP > 0 && iSize >= 0 ){
 		fprintf(stderr, "We started at slave %d have recieved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
 		
-		PackedData *  myPackedData = new PackedData(iSize);
+		myPackedData = new PackedData(iSize);
 		fprintf(stderr, "We started at slave %d have Created %d byte\n",m_iProc ,sizeof(myPackedData));
 		MPI_Recv(myPackedData,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
