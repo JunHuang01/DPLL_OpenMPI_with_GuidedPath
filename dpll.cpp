@@ -485,10 +485,10 @@ void dpll::SlaveInitialRecv(){
 	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
 
-	
+	PackedData * myPackedData
 	if (iTotalByteSizeOfGP > 0 ){
 		fprintf(stderr, "We started at slave %d have recved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
-		PackedData * myPackedData = (PackedData*)malloc(iTotalByteSizeOfGP);
+		myPackedData = (PackedData*)malloc(iTotalByteSizeOfGP);
 
 		MPI_Recv(myPackedData,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
