@@ -269,12 +269,14 @@ void dpll::SlaveInitialRecv(){
 	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
 
+	fprintf(stderr, "We started at slave %d\n",m_iProc );
 	if (iTotalByteSizeOfGP > 0 ){
 		tempRecvWorkPool = (WorkPool*)malloc(iTotalByteSizeOfGP);
+
+		MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
+		MPI_COMM_WORLD,&status);
 	}
 
-	MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
-		MPI_COMM_WORLD,&status);
 
 	if(status.MPI_SOURCE == MASTERPROC)
 		{while(!tempRecvWorkPool->empty()){
