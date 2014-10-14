@@ -110,7 +110,7 @@ int main(int argc, char ** argv){
 					MAX_DEPTH_ALLOWED,iProc,nProc,bMasterProc);
 
 			//initial recv queue
-			pSlave->SlaveInitialRecv();
+			//pSlave->SlaveInitialRecv();
 			
 			//fprintf(stderr, "%d is the checked in 1 \n",iProc );
 

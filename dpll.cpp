@@ -486,10 +486,10 @@ void dpll::LunchSlaves()
 		MPI_Status status;
 
 		int totalGPByteSize = int(sizeof(GPToSend));
-		MPI_Send(&totalGPByteSize,1,MPI_INT,destPE,InitialSendRecvTag,
+		/*MPI_Send(&totalGPByteSize,1,MPI_INT,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 		MPI_Send((void*)&GPToSend,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
-			MPI_COMM_WORLD);
+			MPI_COMM_WORLD);*/
 		WorkerActivityList.at(destPE) = WORKER_ACTIVE;
 	}
 
