@@ -9,6 +9,8 @@
 #include "Constants.h"
 #include "CommonTypes.h"
 
+#include "limits.h"
+
 struct GuidedPath{
 	SATSET currClauses;
 	SolSet currSol;
@@ -30,14 +32,14 @@ struct GuidedPath{
 typedef std::stack<GuidedPath> WorkPool;
 
 struct PackedData{
-	std::vector<GuidedPath> GPPacked;
+	GuidedPath GPPack[INT_MAX];
 	int iSize;
 	PackedData(WorkPool currGP){
 		int iLen = currGP.size();
 		this->iSize = iLen;
 		for (int i = 0; i < iLen && !currGP.empty(); i++)
 		{
-			GPPacked.push_back(currGP.top());
+			GPPacked[i]=currGP.top();
 			currGP.pop();
 		}
 	}
