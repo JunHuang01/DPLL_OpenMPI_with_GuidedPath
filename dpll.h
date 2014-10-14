@@ -50,6 +50,8 @@ public:
 	void MasterGenerateWork(int destPE);
 
 	void packGPToSend(WorkPool &currGPToSend, int iGPToSend = 10);
+
+	void SlaveSplitWork();
 private:
 	SATSET m_SATSET;
 	int m_iMaxClause;
