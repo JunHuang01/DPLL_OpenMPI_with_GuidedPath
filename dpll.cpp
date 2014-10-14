@@ -396,7 +396,6 @@ void dpll::MasterAskForMoreWork()
 	MPI_Status status;
 	MPI_Isend(&iAsk,1,MPI_INT,m_iLastProcAsked,MasterAskSlaveTag,MPI_COMM_WORLD,&status);
 
-	MPI_Status status;
 	int iTotalByteSizeOfGP = 0;
 	
 	WorkPool* tempRecvWorkPool;
