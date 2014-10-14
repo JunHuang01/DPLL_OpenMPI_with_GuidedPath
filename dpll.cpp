@@ -496,13 +496,13 @@ void dpll::SlaveInitialRecv(){
 
 
 	if(status.MPI_SOURCE == MASTERPROC)
-		fprintf(stderr, "We started at slave %d have recved %d GPs\n",m_iProc ,myPackedData->currGP->size());
-		{while(!myPackedData->currGP->empty()){
-			m_SlaveWorkPool.push(myPackedData->currGP->top());
-			myPackedData->currGP->pop();
+		fprintf(stderr, "We started at slave %d have recved %d GPs\n",m_iProc ,myPackedData->currGP.size());
+		{while(!myPackedData->currGP.empty()){
+			m_SlaveWorkPool.push(myPackedData->currGP.top());
+			myPackedData->currGP.pop();
 		}
 		
-		fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,tempRecvWorkPool->size() );
+		//fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,tempRecvWorkPool->size() );
 	}
 }
 void dpll::MasterGenerateWork(int destPE)
