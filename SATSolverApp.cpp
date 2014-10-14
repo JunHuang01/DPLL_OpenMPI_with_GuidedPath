@@ -94,7 +94,7 @@ int main(int argc, char ** argv){
 
 				fprintf(stderr, "we finished init master\n" );
 				//This is false when all process are idle
-				//pMaster->MasterListener();
+				while(!bSolved) pMaster->MasterListener();
 
 			}
 			/*--------- End Master proc----------*/
@@ -110,11 +110,11 @@ int main(int argc, char ** argv){
 					MAX_DEPTH_ALLOWED,iProc,nProc,bMasterProc);
 
 			//initial recv queue
-			//pSlave->SlaveInitialRecv();
+			pSlave->SlaveInitialRecv();
 			
 			//fprintf(stderr, "%d is the checked in 1 \n",iProc );
 
-			/*while(!bSolved){
+			while(!bSolved){
 				//fprintf(stderr, "%d is the checked in 2\n",iProc );
 				//run solver while answer is not found
 				bSolved = (int)pSlave->runDPLL();
