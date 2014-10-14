@@ -111,10 +111,10 @@ int main(int argc, char ** argv){
 			//initial recv queue
 			pSlave->SlaveInitialRecv();
 			
-			fprintf(stderr, "%d is the checked in \n",m_iProc );
+			fprintf(stderr, "%d is the checked in 1 \n",iProc );
 
 			while(!bSolved){
-				fprintf(stderr, "%d is the checked in \n",m_iProc );
+				fprintf(stderr, "%d is the checked in 2\n",iProc );
 				//run solver while answer is not found
 				bSolved = (int)pSlave->runDPLL();
 
