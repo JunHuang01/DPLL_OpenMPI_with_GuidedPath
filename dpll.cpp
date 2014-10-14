@@ -462,19 +462,19 @@ void dpll::LunchSlaves()
 		MPI_Status status;
 
 		PackedData * myPackedData = new PackedData(GPToSend);
-		int totalGPByteSize = int(sizeof(myPackedData));
+		int totalGPByteSize = int(sizeof(*myPackedData));
 
+		fprintf(stderr, "Each GP is %d size \n", sizeof(GuidedPath) );
 		MPI_Send(&totalGPByteSize,1,MPI_INT,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 		int iSize = GPToSend.size();
+
 		MPI_Send(&iSize,1,MPI_INT,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 
 		fprintf(stderr, "We started lunching slave %d\n",destPE );
-		void * myBuff;
-		myBuff = (void*)malloc(totalGPByteSize);
-		memcpy(myBuff,&GPToSend,totalGPByteSize);
-		MPI_Send(myBuff,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
+		
+		MPI_Send((void*)myPackedData,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 
 		free(myBuff);
