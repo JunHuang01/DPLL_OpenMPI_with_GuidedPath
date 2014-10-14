@@ -32,7 +32,7 @@ struct GuidedPath{
 typedef std::stack<GuidedPath> WorkPool;
 
 struct PackedData{
-	GuidedPath GPPack[INT_MAX];
+	GuidedPath GPPacked[INT_MAX];
 	int iSize;
 	PackedData(WorkPool currGP){
 		int iLen = currGP.size();

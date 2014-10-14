@@ -477,8 +477,7 @@ void dpll::LunchSlaves()
 		MPI_Send((void*)myPackedData,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 
-		free(myBuff);
-		myBuff = NULL;
+
 		WorkerActivityList.at(destPE) = WORKER_ACTIVE;
 	}
 
