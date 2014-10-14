@@ -125,7 +125,7 @@ int main(int argc, char ** argv){
 				}
 				else//if answer not found and queue is empty ask for more 
 				{
-					pSlave->SlaveAskForMoreWork();
+					//pSlave->SlaveAskForMoreWork();
 				}
 				
 			}
