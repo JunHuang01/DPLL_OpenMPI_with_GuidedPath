@@ -471,7 +471,7 @@ void dpll::LunchSlaves()
 		void * myBuff;
 		myBuff = (void*)malloc(totalGPByteSize);
 		memcpy(myBuff,&GPToSend,totalGPByteSize);
-		MPI_Send((myBuff,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
+		MPI_Send(myBuff,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 
 		free(myBuff);
