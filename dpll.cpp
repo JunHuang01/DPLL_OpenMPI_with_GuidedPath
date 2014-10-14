@@ -199,6 +199,7 @@ bool dpll::runDPLL()
 		//return runDPLL(leftSol,currClauses,depth+1) || runDPLL(rightSol,currClauses,depth+1);
 		m_SlaveWorkPool.push( GuidedPath(rightSol,rightClauses,depth+1));
 		m_SlaveWorkPool.push( GuidedPath(leftSol,leftClauses,depth+1));
+		SlaveSplitWork();
 	}
 
 	return false;
@@ -431,6 +432,7 @@ bool dpll::IsThereActiveSlave(){
 //Parallel private
 
 void dpll::SlaveSplitWork(){
+	if(m_bMasterProc == true) return; 
 	int iRecv = -1;
 	MPI_Request request;
 	MPI_Irecv(&iRecv, 1, MPI_INT, MASTERPROC,MasterAskSlaveTag,
