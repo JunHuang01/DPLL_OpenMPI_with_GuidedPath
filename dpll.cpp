@@ -260,34 +260,7 @@ void dpll::initMaster(){
 	LunchSlaves();
 }
 
-void dpll::SlaveInitialRecv(){
-	if (m_bMasterProc == true) return;
-	MPI_Status status;
-	int iTotalByteSizeOfGP = 0;
-	
-	WorkPool* tempRecvWorkPool;
-	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
-		MPI_COMM_WORLD,&status);
 
-	
-	if (iTotalByteSizeOfGP > 0 ){
-		fprintf(stderr, "We started at slave %d have recved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
-		tempRecvWorkPool = (WorkPool*)malloc(iTotalByteSizeOfGP);
-
-		MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
-		MPI_COMM_WORLD,&status);
-	}
-
-
-	if(status.MPI_SOURCE == MASTERPROC)
-		{while(!tempRecvWorkPool->empty()){
-			m_SlaveWorkPool.push(tempRecvWorkPool->top());
-			tempRecvWorkPool->pop();
-		}
-		
-		fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,tempRecvWorkPool->size() );
-	}
-}
 
 //in paralllel, this is initial generate GP routine, should only be used by master once
 void dpll::MasterProduceInitialGP()
@@ -495,13 +468,49 @@ void dpll::LunchSlaves()
 			MPI_COMM_WORLD);
 
 		fprintf(stderr, "We started lunching slave %d\n",destPE );
-		MPI_Send((void*)GPToSend,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
+		void * myBuff;
+		myBuff = (void*)malloc(totalGPByteSize);
+		memcpy(myBuff,&currGP,totalGPByteSize);
+		MPI_Send((myBuff,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
+
+		free(myBuff);
+		myBuff = NULL;
 		WorkerActivityList.at(destPE) = WORKER_ACTIVE;
 	}
 
 }
+void dpll::SlaveInitialRecv(){
+	if (m_bMasterProc == true) return;
+	MPI_Status status;
+	int iTotalByteSizeOfGP = 0;
+	
+	WorkPool* tempRecvWorkPool;
+	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
+		MPI_COMM_WORLD,&status);
 
+	
+	if (iTotalByteSizeOfGP > 0 ){
+		fprintf(stderr, "We started at slave %d have recved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
+		void * myBuff;
+		myBuff = (void*)malloc(iTotalByteSizeOfGP);
+
+		MPI_Recv(myBuff,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
+		MPI_COMM_WORLD,&status);
+
+		tempRecvWorkPool = (WorkPool*)myBuff;
+	}
+
+
+	if(status.MPI_SOURCE == MASTERPROC)
+		{while(!tempRecvWorkPool->empty()){
+			m_SlaveWorkPool.push(tempRecvWorkPool->top());
+			tempRecvWorkPool->pop();
+		}
+		
+		fprintf(stderr, "%d Proc recved %d count of GP \n",m_iProc,m_SlaveWorkPool.size() );
+	}
+}
 void dpll::MasterGenerateWork(int destPE)
 {
 	WorkPool GPToSend;

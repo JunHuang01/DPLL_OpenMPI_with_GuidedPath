@@ -26,10 +26,14 @@ struct GuidedPath{
 typedef std::stack<GuidedPath> WorkPool;
 
 struct PackedData{
-	WorkPool currGP;
+	std::vector<GuidedPath> GPPacked;
+	int iSize;
 	PackedData(WorkPool currGP){
-		while(!currGP.empty()) {
-			this->currGP.push(currGP.top());
+		iLen = currGP.size();
+		this->iSize = iLen;
+		for (int i = 0; i < iLen && !currGP.empty(); i++)
+		{
+			GPPacked.push_back(currGP.top());
 			currGP.pop();
 		}
 	}	
