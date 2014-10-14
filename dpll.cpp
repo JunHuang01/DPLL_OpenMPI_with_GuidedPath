@@ -446,9 +446,11 @@ void dpll::SlaveSplitWork(){
 			m_SlaveWorkPool.pop();
 		}
 
+		int totalGPByteSize = int(sizeof(currGPToSend));
+
 		MPI_Isend(&totalGPByteSize,1,MPI_INT,MASTERPROC,SlaveSendToMasteTag,
 			MPI_COMM_WORLD,&request);
-		MPI_Isend((void*)&GPToSend,totalGPByteSize,MPI_BYTE,MASTERPROC,SlaveSendToMasteTag,
+		MPI_Isend((void*)&currGPToSend,totalGPByteSize,MPI_BYTE,MASTERPROC,SlaveSendToMasteTag,
 			MPI_COMM_WORLD,&request);
 	}
 }

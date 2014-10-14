@@ -84,7 +84,7 @@ private:
 	void MasterProduceInitialGP();
 	void LunchSlaves();
 
-	void MasterAskForMoreWork(int destPE);
+	void MasterAskForMoreWork();
 
 	void GetNextActiveProc();
 };
