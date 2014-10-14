@@ -29,7 +29,7 @@ struct PackedData{
 	std::vector<GuidedPath> GPPacked;
 	int iSize;
 	PackedData(WorkPool currGP){
-		iLen = currGP.size();
+		int iLen = currGP.size();
 		this->iSize = iLen;
 		for (int i = 0; i < iLen && !currGP.empty(); i++)
 		{

@@ -470,7 +470,7 @@ void dpll::LunchSlaves()
 		fprintf(stderr, "We started lunching slave %d\n",destPE );
 		void * myBuff;
 		myBuff = (void*)malloc(totalGPByteSize);
-		memcpy(myBuff,&currGP,totalGPByteSize);
+		memcpy(myBuff,&GPToSend,totalGPByteSize);
 		MPI_Send((myBuff,totalGPByteSize,MPI_BYTE,destPE,InitialSendRecvTag,
 			MPI_COMM_WORLD);
 
