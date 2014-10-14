@@ -46,13 +46,13 @@ struct PackedData{
 	PackedData(int iNumGP){
 		this->iSize = iNumGP;
 		for ( int i = 0; i < iNumGP; i++){
-			GPPacked.push_back(GuidedPath());
+			GPPacked[i] = GuidedPath();
 		}
 	}
 
 	void GetWorkPool(WorkPool &currGP){
 		for (int i = 0 ; this->iSize; i++){
-			currGP.push(GPPacked.at(i));
+			currGP.push(GPPacked[i]);
 		}
 	}		
 };
