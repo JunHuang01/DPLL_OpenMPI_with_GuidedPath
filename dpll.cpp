@@ -495,12 +495,14 @@ void dpll::MasterGenerateWork(int destPE)
 	if(iCurrGPCount <= 0){	
 		MasterAskForMoreWork();
 	}
-
+	
+	MPI_Request request;	
 	packGPToSend(GPToSend);
-		int totalGPByteSize = int(sizeof(GPToSend));
-		MPI_Isend(&totalGPByteSize,1,MPI_INT,destPE,MasterSendToSlaveTag,
-			MPI_COMM_WORLD,&request);
-		MPI_Isend((void*)&GPToSend,totalGPByteSize,MPI_BYTE,destPE,MasterSendToSlaveTag,
-			MPI_COMM_WORLD,&request);
-		WorkerActivityList.at(destPE) = WORKER_ACTIVE;
+	int totalGPByteSize = int(sizeof(GPToSend));
+	MPI_Isend(&totalGPByteSize,1,MPI_INT,destPE,MasterSendToSlaveTag,
+		MPI_COMM_WORLD,&request);
+	MPI_Isend((void*)&GPToSend,totalGPByteSize,MPI_BYTE,destPE,MasterSendToSlaveTag,
+		MPI_COMM_WORLD,&request);
+	
+	WorkerActivityList.at(destPE) = WORKER_ACTIVE;
 }
