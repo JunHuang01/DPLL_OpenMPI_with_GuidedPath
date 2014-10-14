@@ -269,8 +269,9 @@ void dpll::SlaveInitialRecv(){
 	MPI_Recv(&iTotalByteSizeOfGP, 1, MPI_INT,MASTERPROC,InitialSendRecvTag,
 		MPI_COMM_WORLD,&status);
 
-	fprintf(stderr, "We started at slave %d\n",m_iProc );
+	
 	if (iTotalByteSizeOfGP > 0 ){
+		fprintf(stderr, "We started at slave %d have recved %d byte\n",m_iProc ,iTotalByteSizeOfGP);
 		tempRecvWorkPool = (WorkPool*)malloc(iTotalByteSizeOfGP);
 
 		MPI_Recv(tempRecvWorkPool,iTotalByteSizeOfGP,MPI_BYTE,MASTERPROC,InitialSendRecvTag,
