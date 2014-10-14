@@ -95,7 +95,6 @@ int main(int argc, char ** argv){
 				fprintf(stderr, "we finished init master\n" );
 				//This is false when all process are idle
 				while(!bSolved) pMaster->MasterListener();
-
 			}
 			/*--------- End Master proc----------*/
 

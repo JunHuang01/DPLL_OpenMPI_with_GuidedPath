@@ -475,7 +475,7 @@ void dpll::LunchSlaves()
 
 	int iNumGPToSend = ceil((iWorkPoolSize/2)/double(m_nProc));
 
-	for ( int destPE = 0; destPE < m_nProc  ; destPE++)
+	for ( int destPE = 0; destPE < m_nProc  ; ++destPE)
 	{
 		WorkPool GPToSend;
 		packGPToSend(GPToSend,iNumGPToSend );
@@ -492,7 +492,7 @@ void dpll::LunchSlaves()
 			MPI_COMM_WORLD);
 		WorkerActivityList.at(destPE) = WORKER_ACTIVE;
 	}
-
+	fprintf(stderr, "We started lunching slave\n" );
 }
 
 void dpll::MasterGenerateWork(int destPE)
